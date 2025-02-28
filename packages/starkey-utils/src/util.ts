@@ -1,3 +1,5 @@
+const TIMEOUT_ERROR = new Error('timeout');
+
 /**
  * Execute fetch and verify that the response was successful.
  *
