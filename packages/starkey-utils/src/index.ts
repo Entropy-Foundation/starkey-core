@@ -1,6 +1,7 @@
+export type * from './types';
 export {
   fetchWithErrorHandling,
-  handleFetch,
-  successfulFetch,
-  timeoutFetch,
+  handleFetch, sendRequest, successfulFetch,
+  timeoutFetch
 } from "./util";
+
