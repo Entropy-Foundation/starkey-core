@@ -27,7 +27,7 @@ export const getSupraNsPrimaryDomainName = async (asset: NetworkToken,supraNsCon
 }
 let abortController: AbortController | null = null
 
-export const getSupraNsTargetWalletAddress = async (asset: NetworkToken,supraNsContractAddress:string, supraNsName: string) => {
+export const getSupraNsTargetWalletAddress = async (asset: NetworkToken,supraNsContractAddress:string, supraNsDomainName: string) => {
   try {
     // Cancel previous request if it exists
     if (abortController) {
@@ -36,7 +36,7 @@ export const getSupraNsTargetWalletAddress = async (asset: NetworkToken,supraNsC
 
     // Create new abort controller
     abortController = new AbortController()
-    const { subdomain, domain } = parseDomain(supraNsName)
+    const { subdomain, domain } = parseDomain(supraNsDomainName.toLowerCase())
     if (!subdomain && !domain) return null
     const contractAddress = supraNsContractAddress
     const data = {
