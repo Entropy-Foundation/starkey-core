@@ -1,4 +1,3 @@
-
 export type EnvironmentType = 'testNet' | 'mainNet'
 
 export interface NetworkToken {
