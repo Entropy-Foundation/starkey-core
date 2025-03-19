@@ -1,3 +1,4 @@
+import axios, { AxiosResponse } from 'axios';
 const TIMEOUT_ERROR = new Error('timeout');
 
 /**
@@ -130,5 +131,47 @@ function logOrRethrowError(error: unknown, codesToCatch: number[] = []) {
   } else {
     // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw error;
+  }
+}
+
+export async function sendRequest (
+  supraNodeURL: string,
+  subURL: string,
+  data?: any,
+  isGetMethod?: boolean,
+  controller?: AbortController
+): Promise<AxiosResponse<any, any>> {
+  try {
+    let resData
+    if (isGetMethod) {
+      resData = await axios({
+        method: 'get',
+        baseURL: supraNodeURL,
+        url: subURL,
+      })
+    } else {
+      if (data == undefined) {
+        throw new Error("For Post Request 'data' Should Not Be 'undefined'")
+      }
+      resData = await axios({
+        method: 'post',
+        baseURL: supraNodeURL,
+        url: subURL,
+        data: data,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller?.signal, // Attach abort signal
+      })
+    }
+    if (resData.status == 404) {
+      throw new Error('Invalid URL, Path Not Found')
+    }
+    return resData
+  } catch (error: any) {
+    if (axios.isCancel(error)) {
+      console.log('Request canceled:', error.message)
+    }
+    throw error
   }
 }
