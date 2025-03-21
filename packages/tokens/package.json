@@ -8,6 +8,6 @@
   "main": "dist/index.js",
   "license": "MIT",
   "dependencies": {
-    "utils": "workspace:*"
+    "@starkey/utils": "*"
   }
 }
