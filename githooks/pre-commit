@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Removing
+git clean -fd --exclude=node_modules
+
+
+exit 0
