@@ -3,6 +3,13 @@ import { generateRandomString, NetworkToken, useAxios } from "@starkey/utils"
 import * as aptos from 'aptos'
 import { ethers } from 'ethers'
 
+/**
+   * @description Get the custom token details for a specific token contract address.
+   * @param {string} contractAddress - The token contract address.
+   * @param {string} userAddress - The address of the wallet.
+   * @returns {NetworkToken | { error: string }} - An object containing the custom token details or an object with an error message if the token contract address is not valid.
+   * @throws {Error} - If the token contract address is not valid.
+   */
 export async function getCustomToken(asset:NetworkToken,contractAddress:string,userAddress:string,networkEnvironment:string) {
   try {
       const client = new aptos.AptosClient(asset.providerNetworkRPC_URL)

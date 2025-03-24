@@ -2,7 +2,14 @@ import { generateRandomString, NetworkToken } from "@starkey/utils"
 import { ethers, JsonRpcProvider } from "ethers"
 import Erc20TokenABI from './Erc20TokenABI.json'
 
-export async function getCustomToken(asset:NetworkToken,contractAddress:string,userAddress:string,networkEnvironment?:string) {
+/**
+   * Get the custom token details for a specific token contract address.
+   * @param {string} contractAddress - The token contract address.
+   * @param {string} userAddress - The address of the wallet.
+   * @returns {NetworkToken | { error: string }} - An object containing the custom token details or an object with an error message if the token contract address is not valid.
+   * @throws {Error} - If the token contract address is not a valid Ethereum address.
+   */
+export async function getCustomToken(asset:NetworkToken,contractAddress:string,userAddress:string) {
     if (contractAddress.length === 42) {
       try {
         const provider = new JsonRpcProvider(asset.providerNetworkRPC_URL)

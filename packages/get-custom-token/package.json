@@ -11,7 +11,7 @@
     "@starkey/utils": "link:./../utils",
     "@starkey/eth": "link:./../eth",
     "@starkey/aptos": "link:./../aptos",
-    "@starkey/solana": "link:./../solana"
-
+    "@starkey/solana": "link:./../solana",
+    "@starkey/sui" : "link:./../sui"
   }
 }
