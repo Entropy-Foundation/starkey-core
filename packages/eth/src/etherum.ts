@@ -1,10 +1,8 @@
 import { generateRandomString, NetworkToken } from "@starkey/utils"
 import { ethers, JsonRpcProvider } from "ethers"
 import Erc20TokenABI from './Erc20TokenABI.json'
-export interface INetwork {
-  getCustomTokenEth:(contractAddress: string, walletAddress?: string) => Promise<any>
-}
-export async function getCustomTokenEth(asset:NetworkToken,contractAddress:string,userAddress:string) {
+
+export async function getCustomToken(asset:NetworkToken,contractAddress:string,userAddress:string,networkEnvironment?:string) {
     if (contractAddress.length === 42) {
       try {
         const provider = new JsonRpcProvider(asset.providerNetworkRPC_URL)

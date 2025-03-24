@@ -1,5 +1,5 @@
 {
-  "name": "@starkey/eth",
+  "name": "@starkey/get-custom-token",
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
@@ -9,6 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "@starkey/utils": "link:./../utils",
-    "ethers": "6.13.5"
+    "@starkey/eth": "link:./../eth",
+    "@starkey/aptos": "link:./../aptos"
   }
 }
