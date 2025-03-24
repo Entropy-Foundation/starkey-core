@@ -1,2 +1,2 @@
-export { getSupraNsPrimaryDomainName, getSupraNsTargetWalletAddress } from './name-service';
+export * from './name-service';
 
