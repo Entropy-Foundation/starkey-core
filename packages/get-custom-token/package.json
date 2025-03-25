@@ -12,6 +12,7 @@
     "@starkey/eth": "link:./../eth",
     "@starkey/aptos": "link:./../aptos",
     "@starkey/solana": "link:./../solana",
-    "@starkey/sui" : "link:./../sui"
+    "@starkey/sui" : "link:./../sui",
+    "@starkey/supra" : "link:./../supra"
   }
 }
