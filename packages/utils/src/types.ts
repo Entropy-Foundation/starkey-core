@@ -46,3 +46,19 @@ export interface NetworkToken {
   pairName: string
   currencyPrice?: string
 }
+
+export interface TokenRequestParams {
+  rpcUrl:string
+  contractAddress: string
+  userAddress: string
+  networkEnvironment?: string
+}
+
+export interface TokenResponseData {
+  title : string
+  subTitle : string
+  balance : number
+  decimal : number
+  image? : string
+  tokenType? : 'Native' | 'ERC20'
+}

@@ -1,46 +1,35 @@
 import { SuiClient } from '@mysten/sui.js/client'
-import { NATIVE_COINS, NetworkToken, generateRandomString } from "@starkey/utils"
-import { ethers, toBigInt } from "ethers"
+import { NATIVE_COINS, TokenRequestParams } from "@starkey/utils"
+import { toBigInt } from "ethers"
 
 /**
  * @description Get the custom token details for a specific token contract address.
  * @param {string} contractAddress - The token contract address.
- * @param {string} walletAddress - The address of the wallet.
- * @returns {NetworkToken | { error: string }} - An object containing the custom token details or an object with an error message if the token contract address is not valid.
+ * @param {string} userAddress - The address of the wallet.
+ * @param {string} rpcUrl - The rpc url of network.
+ * @returns {TokenResponseData | { error: string }} - An object containing the custom token details or an object with an error message if the token contract address is not valid.
  * @throws {Error} - If the token contract address is not valid.
  */
-export async function getCustomToken(asset:NetworkToken,contractAddress:string,userAddress:string) {
+export async function getCustomToken(params:TokenRequestParams) {
   try {
     const provider = new SuiClient({
-      url: asset.providerNetworkRPC_URL,
+      url: params.rpcUrl,
     })
       const tokenInfo = await provider.getCoinMetadata({
-        coinType: contractAddress,
+        coinType: params.contractAddress,
       })
       if (tokenInfo) {
         let balance = 0
-        let customAsset = {
-          ...asset,
-          tokenContractAddress: contractAddress,
-          subTitle: tokenInfo.symbol,
-        }
-        balance = await getTokenBalance(userAddress, customAsset)
+        balance = await getTokenBalance(params)
         const filteredSymbol = tokenInfo?.symbol.replace(/[^a-zA-Z0-9-]/g, '').slice(0, 10)
 
-        const newToken: NetworkToken = {
-          ...asset,
+        return {
           title: filteredSymbol,
           subTitle: tokenInfo.name,
-          tokenContractAddress: contractAddress,
-          shortName: `${asset.networkName}_${filteredSymbol}_${generateRandomString(5)}`,
           balance: Number(balance),
-          formattedBalance: ethers.formatUnits(balance || 0, tokenInfo?.decimals ?? 9),
           decimal: tokenInfo?.decimals ?? '',
-          tokenType: 'ERC20',
-          isCustom: true,
           image: tokenInfo?.iconUrl ?? '',
         }
-        return newToken
       } else {
         return { error: 'Resource not found by Address' }
       }
@@ -53,21 +42,21 @@ export async function getCustomToken(asset:NetworkToken,contractAddress:string,u
 
 /**
  * Get the balance of a SUI address for a specific asset.
- * @param address - The address of the wallet.
- * @param asset - The asset for which the balance is to be retrieved.
+ * @param userAddress - The address of the wallet.
+ * @param params - The asset for which the balance is to be retrieved.
  * @returns The total balance of the specified asset for the given address.
  */
-export const getTokenBalance = async (address: string, asset: NetworkToken, checkNative?: boolean): Promise<number> => {
+const getTokenBalance = async (params:TokenRequestParams, checkNative?: boolean): Promise<number> => {
   try {
-    const suiProvider = new SuiClient({ url: asset.providerNetworkRPC_URL })
+    const suiProvider = new SuiClient({ url: params.rpcUrl })
     const coinType = checkNative
       ? NATIVE_COINS.SUI_COIN
-      : asset.tokenContractAddress
-      ? asset.tokenContractAddress
+      : params.contractAddress
+      ? params.contractAddress
       : NATIVE_COINS.SUI_COIN
 
     let { totalBalance } = await suiProvider.getBalance({
-      owner: address,
+      owner: params.userAddress,
       coinType: coinType,
     })
     const bigBalance = totalBalance
