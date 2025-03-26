@@ -1,6 +1,6 @@
 export * from "./axios";
-export * from "./commonFunctions";
 export * from "./constants";
+export * from "./fetch";
 export type * from './types';
-export * from "./util";
+export * from "./utils";
 

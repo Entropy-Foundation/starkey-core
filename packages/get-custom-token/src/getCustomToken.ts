@@ -39,9 +39,9 @@ export async function getCustomTokenData(asset:NetworkToken,contractAddress:stri
     return { error: token.error } // If there was an error, return it
    }
   
-   const netToken : NetworkToken = {
-      ...token,
+   const newToken : NetworkToken = {
       ...asset,
+      ...token,
       tokenContractAddress: contractAddress,
       shortName: `${asset.networkName}_${token.title}_${generateRandomString(5)}`,
       tokenType: token.tokenType || 'ERC20', 
@@ -49,5 +49,5 @@ export async function getCustomTokenData(asset:NetworkToken,contractAddress:stri
       image: token.image || '',
       formattedBalance: ethers.formatUnits(token.balance || 0, token.decimal ?? 9),
    }
-   return netToken
+   return newToken
 }

@@ -25,7 +25,6 @@ export async function getCustomToken(params:TokenRequestParams) {
         const supraClient = await getSupraProvider(params.rpcUrl)
         const tokenInfo = await supraClient.getCoinInfo(params.contractAddress)
         const filteredSymbol = tokenInfo?.symbol.replace(/[^a-zA-Z0-9-]/g, '').slice(0, 10)
-
         const newToken: TokenResponseData = {
           title: filteredSymbol ?? '',
           subTitle: tokenInfo?.name ?? '',
