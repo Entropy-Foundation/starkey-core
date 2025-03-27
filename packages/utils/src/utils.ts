@@ -9,3 +9,19 @@ export function generateRandomString (length: number): string {
 
   return result
 }
+
+export function fetchOptionsData(url:string, dataQuery:string){
+  const abortController = new AbortController()
+  const fetchOptions: RequestInit = {
+      referrer:  url,
+      referrerPolicy: 'no-referrer-when-downgrade',
+      method: 'POST',
+      mode: 'cors',
+      signal: abortController.signal,
+      cache: 'default',
+    }
+    fetchOptions.headers = new window.Headers()
+    fetchOptions.headers.set('Content-Type', 'application/json')
+    fetchOptions.body = dataQuery
+    return fetchOptions
+}
