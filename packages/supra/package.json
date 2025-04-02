@@ -1,0 +1,14 @@
+{
+  "name": "@starkey/supra",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "main": "dist/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@starkey/utils": "link:./../utils",
+    "supra-l1-sdk": "git+https://github.com/Entropy-Foundation/supra-l1-sdk.git#d16685676998a64104a378dd7191c8ecbfcc98b0"
+  }
+}

@@ -1,0 +1,5 @@
+export enum NATIVE_COINS {
+  APTOS_COIN = '0x1::aptos_coin::AptosCoin',
+  SOLANA_COIN = '11111111111111111111111111111111',
+  SUI_COIN = '0x2::sui::SUI',
+}

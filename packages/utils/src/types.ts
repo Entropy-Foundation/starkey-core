@@ -46,3 +46,58 @@ export interface NetworkToken {
   pairName: string
   currencyPrice?: string
 }
+
+export interface TokenRequestParams {
+  rpcUrl:string
+  contractAddress: string
+  userAddress: string
+  networkEnvironment?: string
+}
+
+export interface TokenResponseData {
+  title : string
+  subTitle : string
+  balance : number
+  decimal : number
+  image? : string
+  tokenType? : 'Native' | 'ERC20'
+}
+
+export type TokenDataProps = {
+  id: string
+  chain: string
+  name: string
+  contractAddress: string
+  image: string
+  acronym: string
+  decimal: number
+  percentage: number
+  symbol: string
+  pairId: string
+  pairName: string
+}
+
+export interface Network {
+  id: string
+  name: string
+}
+
+export interface Token {
+  id: string
+  name: string
+  symbol: string
+  address: string
+  is_recommended: boolean
+  decimals: number
+  logoURI: string
+  chainId: string
+  pair_id: string | null
+  pair_name: string | null
+  network_id: Network
+}
+
+export interface TokensResponse {
+  data: {
+    tokens: Token[]
+  }
+}

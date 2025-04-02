@@ -1,22 +1,39 @@
 
-import { handleFetch } from '@starkey/utils';
-import { TokensResponse } from './types';
+import { fetchOptionsData, handleFetch, TokenDataProps, TokensResponse } from '@starkey/utils';
 
-export function fetchOptionsData(url:string, dataQuery:string){
-  const abortController = new AbortController()
-  const fetchOptions: RequestInit = {
-      referrer:  url,
-      referrerPolicy: 'no-referrer-when-downgrade',
-      method: 'POST',
-      mode: 'cors',
-      signal: abortController.signal,
-      cache: 'default',
+export const getCustomTokenData = async (
+  url:string,
+  address: string,
+  coingeckoNetworkId?: string
+): Promise<TokenDataProps | null> => {
+  try {
+    if (!coingeckoNetworkId) {
+      coingeckoNetworkId = 'ethereum'
     }
-    fetchOptions.headers = new window.Headers()
-    fetchOptions.headers.set('Content-Type', 'application/json')
-    fetchOptions.body = dataQuery
-    return fetchOptions
+
+    let dataQuery = JSON.stringify({
+      query: `query StarkeyNetwork($input: walletInput) {
+              starkeyCustomTokenData(input: $input) {
+                decimal
+                id
+                image
+                name
+                pairId
+                symbol
+                pairName
+              }
+            }`,
+      variables: { input: { networkName: coingeckoNetworkId, contractAddress: address } },
+    })
+
+    const fetchOptions = fetchOptionsData(url,dataQuery)
+    const response = await handleFetch(url, fetchOptions)
+    return response.data.starkeyCustomTokenData
+  } catch (err) {
+    return null
+  }
 }
+
 
 export async function customTokenList(
   url:string,
@@ -82,5 +99,3 @@ export async function customTokenList(
     return []
   }
 }
-
-export default {customTokenList}

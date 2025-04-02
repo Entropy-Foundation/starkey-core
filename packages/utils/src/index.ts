@@ -1,7 +1,6 @@
+export * from "./axios";
+export * from "./constants";
+export * from "./fetch";
 export type * from './types';
-export {
-  fetchWithErrorHandling,
-  handleFetch, sendRequest, successfulFetch,
-  timeoutFetch
-} from "./util";
+export * from "./utils";
 
