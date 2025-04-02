@@ -1,5 +1,5 @@
 {
-  "name": "@starkey-core",
+  "name": "starkey-core",
   "private": true,
   "version": "1.0.0",
   "scripts": {
