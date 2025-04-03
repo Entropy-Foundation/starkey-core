@@ -7,8 +7,7 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
-    "prepare": "npm run build"
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "devDependencies": {
     "prettier": "^3.4.2",
