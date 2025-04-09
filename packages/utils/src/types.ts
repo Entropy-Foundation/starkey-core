@@ -14,7 +14,7 @@ export interface NetworkToken {
   usdAmount: string
   networkId: string
   networkName: string
-  tokenType: 'Native' | 'ERC20'
+  tokenType: 'Native' | 'ERC20' | 'FA coin'
   isUpdated?: boolean
   tokenContractAddress?: string
   providerNetworkRPC_URL: string
@@ -48,19 +48,19 @@ export interface NetworkToken {
 }
 
 export interface TokenRequestParams {
-  rpcUrl:string
+  rpcUrl: string
   contractAddress: string
   userAddress: string
   networkEnvironment?: string
 }
 
 export interface TokenResponseData {
-  title : string
-  subTitle : string
-  balance : number
-  decimal : number
-  image? : string
-  tokenType? : 'Native' | 'ERC20'
+  title: string
+  subTitle: string
+  balance: number
+  decimal: number
+  image?: string
+  tokenType?: 'Native' | 'ERC20' | 'FA coin'
 }
 
 export type TokenDataProps = {

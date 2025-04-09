@@ -1,1 +1,1 @@
-export { getCustomToken } from './aptos'
+export { getCustomToken, getFungibleTokenBalance } from './aptos'
