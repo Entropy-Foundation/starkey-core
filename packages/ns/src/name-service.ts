@@ -1,6 +1,10 @@
 import { NetworkToken, sendRequest } from '@starkey/utils'
 
-export const getSupraNsPrimaryDomainName = async (asset: NetworkToken,supraNsContractAddress:string, address?: string) => {
+export const getSupraNsPrimaryDomainName = async (
+  asset: NetworkToken,
+  supraNsContractAddress: string,
+  address?: string
+) => {
   try {
     const contractAddress = supraNsContractAddress
     const data = {
@@ -27,7 +31,11 @@ export const getSupraNsPrimaryDomainName = async (asset: NetworkToken,supraNsCon
 }
 let abortController: AbortController | null = null
 
-export const getSupraNsTargetWalletAddress = async (asset: NetworkToken,supraNsContractAddress:string, supraNsDomainName: string) => {
+export const getSupraNsTargetWalletAddress = async (
+  rpcUrl: string,
+  supraNsContractAddress: string,
+  supraNsDomainName: string
+) => {
   try {
     // Cancel previous request if it exists
     if (abortController) {
@@ -44,7 +52,7 @@ export const getSupraNsTargetWalletAddress = async (asset: NetworkToken,supraNsC
       type_arguments: [],
       arguments: domain && subdomain ? [domain, { vec: [subdomain] }] : [domain, { vec: [] }],
     }
-    const result = await sendRequest(asset.providerNetworkRPC_URL, '/rpc/v1/view', data, false, abortController)
+    const result = await sendRequest(rpcUrl, '/rpc/v1/view', data, false, abortController)
     const response = result?.data?.result ?? []
 
     if (response.length === 0) return null
