@@ -5,7 +5,7 @@
     "build": "tsc",
     "watch": "tsc --watch"
   },
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "license": "MIT",
   "dependencies": {
     "@starkey/utils": "link:./../utils"
