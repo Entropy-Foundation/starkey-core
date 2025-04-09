@@ -1,1 +1,1 @@
-export * from './sui';
+export { getCustomToken } from './sui'

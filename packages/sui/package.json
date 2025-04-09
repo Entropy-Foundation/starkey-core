@@ -5,7 +5,7 @@
     "build": "tsc",
     "watch": "tsc --watch"
   },
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "license": "MIT",
   "dependencies": {
     "@mysten/sui.js": "0.54.1",

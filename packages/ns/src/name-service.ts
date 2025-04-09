@@ -1,4 +1,5 @@
 import { NetworkToken, sendRequest } from '@starkey/utils'
+const supraNsExtension = 'supra'
 
 export const getSupraNsPrimaryDomainName = async (
   asset: NetworkToken,
@@ -64,9 +65,7 @@ export const getSupraNsTargetWalletAddress = async (
   }
 }
 
-export const supraNsExtension = 'supra'
-
-export const parseDomain = (url: string) => {
+const parseDomain = (url: string) => {
   const parts = url.split('.')
   if (parts.length < 2) return { domain: undefined }
 
