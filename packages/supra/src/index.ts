@@ -1,1 +1,1 @@
-export { getCustomToken } from './supra'
+export { getCustomToken, getFungibleTokenBalance } from './supra'
