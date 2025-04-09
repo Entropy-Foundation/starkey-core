@@ -1,1 +1,1 @@
-export * from './supra';
+export { getCustomToken } from './supra'

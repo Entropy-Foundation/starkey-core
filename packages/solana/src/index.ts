@@ -1,1 +1,1 @@
-export * from './solana';
+export { getCustomToken } from './solana'

@@ -1,1 +1,1 @@
-export * from './aptos';
+export { getCustomToken } from './aptos'
