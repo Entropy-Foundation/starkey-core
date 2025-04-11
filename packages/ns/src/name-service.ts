@@ -4,7 +4,7 @@ const supraNsExtension = 'supra'
 export const getSupraNsPrimaryDomainName = async (
   asset: NetworkToken,
   supraNsContractAddress: string,
-  address?: string
+  address?: string,
 ) => {
   try {
     const contractAddress = supraNsContractAddress
@@ -24,8 +24,8 @@ export const getSupraNsPrimaryDomainName = async (
     return domain && subdomain
       ? `${subdomain}.${domain}.${supraNsExtension}`
       : domain
-      ? `${domain}.${supraNsExtension}`
-      : null
+        ? `${domain}.${supraNsExtension}`
+        : null
   } catch (error) {
     return null
   }
@@ -35,7 +35,7 @@ let abortController: AbortController | null = null
 export const getSupraNsTargetWalletAddress = async (
   rpcUrl: string,
   supraNsContractAddress: string,
-  supraNsDomainName: string
+  supraNsDomainName: string,
 ) => {
   try {
     // Cancel previous request if it exists
