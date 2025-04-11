@@ -328,7 +328,7 @@
   version "1.0.0"
   dependencies:
     "@starkey/utils" "link:./packages/utils"
-    supra-l1-sdk "git+https://github.com/Entropy-Foundation/supra-l1-sdk.git#d16685676998a64104a378dd7191c8ecbfcc98b0"
+    supra-l1-sdk "4.2.0"
 
 "@starkey/utils@link:./packages/utils":
   version "1.0.0"
@@ -2555,9 +2555,10 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-"supra-l1-sdk@git+https://github.com/Entropy-Foundation/supra-l1-sdk.git#d16685676998a64104a378dd7191c8ecbfcc98b0":
-  version "4.1.1"
-  resolved "git+https://github.com/Entropy-Foundation/supra-l1-sdk.git#d16685676998a64104a378dd7191c8ecbfcc98b0"
+supra-l1-sdk@4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/supra-l1-sdk/-/supra-l1-sdk-4.2.0.tgz#6bea0ee019b8d0f0a077c77880ae1bf65fb9e91e"
+  integrity sha512-sQ4Sb4gg0QL81LAqurySvUn1n2D0WIggFX0gbIzuiYR8orUGJ9DLnh7KAw1HeGsiKxArIldcmj9eRQ/q1suPng==
   dependencies:
     js-sha3 "^0.9.3"
     legacy-aptos-sdk "github:Entropy-Foundation/aptos-sdk-legacy#v1.22.0"
