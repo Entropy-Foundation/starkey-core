@@ -35,7 +35,7 @@ export interface NetworkToken {
   envType: EnvironmentType | ''
   explorerAccountURL: string
   decimal?: number
-  balance?: number | any
+  balance?: number | string
   formattedBalance?: string
   isHidden?: boolean
   chainIdentifier?: string
@@ -45,6 +45,7 @@ export interface NetworkToken {
   explorerName?: string
   pairName: string
   currencyPrice?: string
+  rawBalance?: any
 }
 
 export interface TokenRequestParams {
@@ -57,9 +58,10 @@ export interface TokenRequestParams {
 export interface TokenResponseData {
   title: string
   subTitle: string
-  balance: number
+  balance: number | string
   decimal: number
   image?: string
+  rawBalance: any
   tokenType?: 'Native' | 'ERC20' | 'FA coin'
 }
 

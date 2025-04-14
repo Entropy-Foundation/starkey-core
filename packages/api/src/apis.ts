@@ -1,8 +1,7 @@
+import { fetchOptionsData, handleFetch, TokenDataProps, TokensResponse } from '@starkey/utils'
 
-import { fetchOptionsData, handleFetch, TokenDataProps, TokensResponse } from '@starkey/utils';
-
-export const getCustomTokenData = async (
-  url:string,
+export const getCustomTokenDataFromApi = async (
+  url: string,
   address: string,
   coingeckoNetworkId?: string
 ): Promise<TokenDataProps | null> => {
@@ -26,7 +25,7 @@ export const getCustomTokenData = async (
       variables: { input: { networkName: coingeckoNetworkId, contractAddress: address } },
     })
 
-    const fetchOptions = fetchOptionsData(url,dataQuery)
+    const fetchOptions = fetchOptionsData(url, dataQuery)
     const response = await handleFetch(url, fetchOptions)
     return response.data.starkeyCustomTokenData
   } catch (err) {
@@ -34,17 +33,16 @@ export const getCustomTokenData = async (
   }
 }
 
-
 export async function customTokenList(
-  url:string,
+  url: string,
   isRecommended?: boolean,
   search?: string,
   networkName?: string,
   offset: number = 0,
-  limit: number = 10): Promise<TokensResponse | []>{
-    try {
-
-      const filters: any = {}
+  limit: number = 10
+): Promise<TokensResponse | []> {
+  try {
+    const filters: any = {}
     // 1. If isRecommended is true, filter tokens where is_recommended = true
     if (isRecommended === true) {
       filters['is_recommended'] = { _eq: true }
@@ -92,7 +90,7 @@ export async function customTokenList(
       variables: { filters, limit, offset, sort },
     })
 
-    const fetchOptions = fetchOptionsData(url,dataQuery)
+    const fetchOptions = fetchOptionsData(url, dataQuery)
     const response = await handleFetch(url, fetchOptions)
     return response.data.tokens
   } catch (err) {

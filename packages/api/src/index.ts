@@ -1,2 +1,2 @@
-export { customTokenList, getCustomTokenData } from './apis'
+export { customTokenList, getCustomTokenDataFromApi } from './apis'
 export { dappsList } from './dApps'
