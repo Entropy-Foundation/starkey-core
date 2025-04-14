@@ -53,5 +53,6 @@ export async function getCustomTokenData(
     image: token.image || '',
     formattedBalance: ethers.formatUnits(token.rawBalance || 0, token.decimal),
   }
+  delete newToken.rawBalance
   return newToken
 }

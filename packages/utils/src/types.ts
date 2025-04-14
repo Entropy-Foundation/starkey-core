@@ -45,6 +45,7 @@ export interface NetworkToken {
   explorerName?: string
   pairName: string
   currencyPrice?: string
+  rawBalance?: any
 }
 
 export interface TokenRequestParams {
