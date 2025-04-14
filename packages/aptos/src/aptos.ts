@@ -53,6 +53,7 @@ export async function getCustomToken(params: TokenRequestParams) {
       title: filteredSymbol ?? '',
       subTitle: tokenInfo?.name ?? '',
       balance: 0,
+      rawBalance: 0,
       decimal: tokenInfo?.decimals ?? '',
       tokenType,
       image: (tokenInfo?.logo_url || tokenInfo?.icon_uri) ?? '',
@@ -63,6 +64,7 @@ export async function getCustomToken(params: TokenRequestParams) {
         const tokenBalance: any = await client.getAccountResource(params.userAddress, coinStore)
         const balance = tokenBalance?.data?.coin?.value ? tokenBalance?.data?.coin?.value : 0
         newToken.balance = balance
+        newToken.rawBalance = balance
       } else {
         const balance = await getFungibleTokenBalance(params)
         newToken.balance = balance
@@ -73,13 +75,14 @@ export async function getCustomToken(params: TokenRequestParams) {
     }
   } catch (error: any) {
     if (error.message) {
-      const errorObject = JSON.parse(error.message)
-      const messageSentence = errorObject.mes
-      const errorMsg = messageSentence.split('(')[0] as string
-      // Log the error if needed
-      return { error: errorMsg.includes('resource_type') ? 'Resource not found by Address token' : errorMsg }
+      // const errorObject = JSON.parse(error.message)
+      // const messageSentence = errorObject.mes
+      // const errorMsg = messageSentence.split('(')[0] as string
+      // // Log the error if needed
+      // return { error: errorMsg.includes('resource_type') ? 'Address is incorrect' : errorMsg }
+      return { error: 'Address is incorrect' }
     } else {
-      return { error: 'Resource not found by Address token' }
+      return { error: 'Address is incorrect' }
     }
   }
 }

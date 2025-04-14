@@ -23,9 +23,10 @@ export async function getCustomTokenData(
   networkEnvironment: string
 ) {
   let token: TokenResponseData | { error: string } = { error: 'Unsupported network' }
-
-  if (asset.networkName === 'ETH') {
+  if (asset.isEVMNetwork) {
     token = await getCustomTokenEth({ rpcUrl: asset.providerNetworkRPC_URL, contractAddress, userAddress })
+  } else if (asset.isSupraNetwork) {
+    token = await getCustomTokenSup({ rpcUrl: asset.providerNetworkRPC_URL, contractAddress, userAddress })
   } else if (asset.networkName === 'APT') {
     token = await getCustomTokenApt({
       rpcUrl: asset.providerNetworkRPC_URL,
@@ -37,8 +38,6 @@ export async function getCustomTokenData(
     token = await getCustomTokenSol({ rpcUrl: asset.providerNetworkRPC_URL, contractAddress, userAddress })
   } else if (asset.networkName === 'SUI') {
     token = await getCustomTokenSui({ rpcUrl: asset.providerNetworkRPC_URL, contractAddress, userAddress })
-  } else if (asset.networkName === 'SUP') {
-    token = await getCustomTokenSup({ rpcUrl: asset.providerNetworkRPC_URL, contractAddress, userAddress })
   }
   if ('error' in token) {
     return { error: token.error } // If there was an error, return it
@@ -52,7 +51,7 @@ export async function getCustomTokenData(
     tokenType: token.tokenType || 'ERC20',
     isCustom: true,
     image: token.image || '',
-    formattedBalance: ethers.formatUnits(token.balance || 0, token.decimal),
+    formattedBalance: ethers.formatUnits(token.rawBalance || 0, token.decimal),
   }
   return newToken
 }

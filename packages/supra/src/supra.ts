@@ -45,6 +45,7 @@ export async function getCustomToken(params: TokenRequestParams) {
       decimal: tokenInfo?.decimals ?? '',
       tokenType,
       image: tokenInfo?.icon_uri ?? undefined,
+      rawBalance: 0,
     }
     try {
       let balance
@@ -55,12 +56,13 @@ export async function getCustomToken(params: TokenRequestParams) {
         balance = await getFungibleTokenBalance(params)
       }
       newToken.balance = Number(balance) || 0
+      newToken.rawBalance = balance
       return newToken
     } catch (_) {
       return newToken
     }
   } catch (error: any) {
-    return { error: 'Resource not found by Address token' }
+    return { error: 'Address is incorrect' }
   }
 }
 

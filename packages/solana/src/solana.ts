@@ -27,17 +27,19 @@ export async function getCustomToken(params: TokenRequestParams) {
         title: filteredSymbol ?? '',
         subTitle: tokenInfo?.name ?? '',
         balance: balance,
+        rawBalance: balance,
         decimal: tokenInfo?.decimals ?? '',
         tokenType: tokenInfo?.type ?? 'ERC20',
         image: tokenInfo?.logoURI ?? '',
       }
     } else {
-      return { error: 'Resource not found by Address' }
+      return { error: 'Address is incorrect' }
     }
   } catch (error: any) {
-    const match = error.toString().match(/:\s*(.*)/)
-    const sentenceAfterFirstColon = match ? match[1].trim() : ''
-    return { error: sentenceAfterFirstColon }
+    // const match = error.toString().match(/:\s*(.*)/)
+    // const sentenceAfterFirstColon = match ? match[1].trim() : ''
+    // return { error: sentenceAfterFirstColon }
+    return { error: 'Address is incorrect' }
   }
 }
 
