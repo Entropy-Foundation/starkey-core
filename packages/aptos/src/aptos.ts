@@ -68,6 +68,7 @@ export async function getCustomToken(params: TokenRequestParams) {
       } else {
         const balance = await getFungibleTokenBalance(params)
         newToken.balance = balance
+        newToken.rawBalance = balance
       }
       return newToken
     } catch (e) {
