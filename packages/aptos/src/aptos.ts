@@ -72,11 +72,15 @@ export async function getCustomToken(params: TokenRequestParams) {
       return newToken
     }
   } catch (error: any) {
-    const errorObject = JSON.parse(error.message)
-    const messageSentence = errorObject.message
-    const errorMsg = messageSentence.split('(')[0] as string
-    // Log the error if needed
-    return { error: errorMsg.includes('resource_type') ? 'Resource not found by Address token' : errorMsg }
+    if (error.message) {
+      const errorObject = JSON.parse(error.message)
+      const messageSentence = errorObject.mes
+      const errorMsg = messageSentence.split('(')[0] as string
+      // Log the error if needed
+      return { error: errorMsg.includes('resource_type') ? 'Resource not found by Address token' : errorMsg }
+    } else {
+      return { error: 'Resource not found by Address token' }
+    }
   }
 }
 
