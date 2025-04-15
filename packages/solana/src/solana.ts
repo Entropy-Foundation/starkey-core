@@ -53,7 +53,7 @@ const fetchTokenInfo = async (params: TokenRequestParams) => {
     const response = await useAxios<any>({
       axiosParams: {
         method: 'post',
-        url: `https://token-list-api.solana.cloud/v1/mints?chainId=${params.rpcUrl}`,
+        url: `https://token-list-api.solana.cloud/v1/mints?chainId=${params.chainId}`,
         headers: {
           'Content-Type': 'application/json',
         },

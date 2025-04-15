@@ -53,6 +53,7 @@ export interface TokenRequestParams {
   contractAddress: string
   userAddress: string
   networkEnvironment?: string
+  chainId?: number | string
 }
 
 export interface TokenResponseData {
