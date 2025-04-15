@@ -20,7 +20,7 @@ export async function getCustomTokenData(
   asset: NetworkToken,
   contractAddress: string,
   userAddress: string,
-  networkEnvironment: string,
+  networkEnvironment: string
 ) {
   let token: TokenResponseData | { error: string } = { error: 'Unsupported network' }
   if (asset.isEVMNetwork) {
@@ -35,7 +35,12 @@ export async function getCustomTokenData(
       networkEnvironment,
     })
   } else if (asset.networkName === 'SOL') {
-    token = await getCustomTokenSol({ rpcUrl: asset.providerNetworkRPC_URL, contractAddress, userAddress })
+    token = await getCustomTokenSol({
+      rpcUrl: asset.providerNetworkRPC_URL,
+      contractAddress,
+      userAddress,
+      chainId: asset.providerNetworkRPC_Network_Name,
+    })
   } else if (asset.networkName === 'SUI') {
     token = await getCustomTokenSui({ rpcUrl: asset.providerNetworkRPC_URL, contractAddress, userAddress })
   }
