@@ -72,7 +72,7 @@ const fetchTokenInfo = async (params: TokenRequestParams) => {
 const createProvider = async (url: string) => {
   let solanaConnectionObject: Connection | undefined
   if (solanaConnectionObject?.rpcEndpoint !== url) {
-    solanaConnectionObject = new Connection(url, {
+    solanaConnectionObject = new Connection(url?.replace('wss', 'https'), {
       wsEndpoint: url?.replace('https', 'wss'),
     })
   }
