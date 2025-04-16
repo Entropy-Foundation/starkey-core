@@ -69,11 +69,18 @@ const fetchTokenInfo = async (params: TokenRequestParams) => {
  * @param {string} url - The URL of the Solana network.
  * @returns {Connection} - The newly created Solana provider.
  */
-const createProvider = async (url: string) => {
+export const createProvider = async (url: string) => {
   let solanaConnectionObject: Connection | undefined
-  if (solanaConnectionObject?.rpcEndpoint !== url) {
-    solanaConnectionObject = new Connection(url, {
-      wsEndpoint: url?.replace('https', 'wss'),
+  // Normalize to always get both http and wss versions from a single input
+  const isWss = url.startsWith('wss://')
+  const isHttps = url.startsWith('https://')
+
+  const HTTP_ENDPOINT = isHttps ? url : url.replace('wss://', 'https://')
+  const WSS_ENDPOINT = isWss ? url : url.replace('https://', 'wss://')
+
+  if (!solanaConnectionObject || solanaConnectionObject.rpcEndpoint !== HTTP_ENDPOINT) {
+    solanaConnectionObject = new Connection(HTTP_ENDPOINT, {
+      wsEndpoint: WSS_ENDPOINT,
     })
   }
   return solanaConnectionObject
