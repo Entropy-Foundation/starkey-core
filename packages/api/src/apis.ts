@@ -97,3 +97,34 @@ export async function customTokenList(
     return []
   }
 }
+
+export const getNetworkDataFromApi = async (url: string, networkName: string, chainId?: string): Promise<any> => {
+  try {
+    const ids: string[] = []
+    if (networkName !== 'unknown') {
+      ids.push(networkName)
+    }
+
+    let dataQuery = JSON.stringify({
+      query: `query StarkeyNetwork($input: walletInput) {
+              starkeyCustomNetworkData(input: $input) {
+                image
+                networkId
+                networkImage
+                networkName
+                pairId
+                symbol
+                tokenId
+                pairName
+              }
+            }`,
+      variables: { input: { chainID: Number(chainId), vs_currency: 'usd', ids: ids.join(',') } },
+    })
+
+    const fetchOptions = fetchOptionsData(url, dataQuery)
+    const response = await handleFetch(url, fetchOptions)
+    return response.data.starkeyCustomNetworkData
+  } catch {
+    return null
+  }
+}

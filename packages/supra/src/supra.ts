@@ -1,4 +1,4 @@
-import { NetworkToken, TokenRequestParams, TokenResponseData, sendRequest } from '@starkey/utils'
+import { NetworkRequestParams, NetworkToken, TokenRequestParams, TokenResponseData, sendRequest } from '@starkey/utils'
 import { HexString, SupraClient } from 'supra-l1-sdk'
 
 /**
@@ -95,4 +95,23 @@ export async function getFungibleTokenBalance(params: TokenRequestParams) {
   }
   const result = await sendRequest(params?.rpcUrl, '/rpc/v1/view', data)
   return result?.data?.result && result?.data?.result.length ? result?.data?.result[0] : '0'
+}
+
+export async function getCustomNetwork(params: NetworkRequestParams) {
+  try {
+    const provider = await SupraClient.init(params.networkURL)
+    if (provider) {
+      const chainId = await provider.getChainId()
+      if (chainId && chainId.value >= 0) {
+        const network = {
+          name: 'SUPRA',
+          chainId: chainId.value,
+        }
+        return { provider: true, network }
+      }
+    }
+    return { provider: null, network: null }
+  } catch (er) {
+    return { provider: null, network: null }
+  }
 }

@@ -104,3 +104,7 @@ export interface TokensResponse {
     tokens: Token[]
   }
 }
+
+export interface NetworkRequestParams {
+  networkURL: string
+}

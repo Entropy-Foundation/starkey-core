@@ -4,6 +4,7 @@ export { fetchWithErrorHandling, handleFetch, successfulFetch, timeoutFetch } fr
 export type {
   EnvironmentType,
   Network,
+  NetworkRequestParams,
   NetworkToken,
   Token,
   TokenDataProps,
