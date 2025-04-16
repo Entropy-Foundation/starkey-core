@@ -1,1 +1,1 @@
-export { getCustomToken } from './etherum'
+export { getCustomNetwork, getCustomToken } from './etherum'

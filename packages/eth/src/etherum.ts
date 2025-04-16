@@ -1,4 +1,4 @@
-import { TokenRequestParams } from '@starkey/utils'
+import { NetworkRequestParams, TokenRequestParams } from '@starkey/utils'
 import { JsonRpcProvider, ethers } from 'ethers'
 import Erc20TokenABI from './Erc20TokenABI.json'
 
@@ -41,4 +41,14 @@ export async function getCustomToken(params: TokenRequestParams) {
     }
   }
   return { error: 'Address is incorrect' }
+}
+
+export async function getCustomNetwork(params: NetworkRequestParams) {
+  try {
+    const provider = new ethers.JsonRpcProvider(params.networkURL)
+    const network = await provider?.getNetwork()
+    return { provider: true, network }
+  } catch (_) {
+    return { provider: null, network: null }
+  }
 }
