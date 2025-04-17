@@ -12,4 +12,4 @@ export type {
   TokenResponseData,
   TokensResponse,
 } from './types'
-export { fetchOptionsData, generateRandomString } from './utils'
+export { fetchOptionsData, generateRandomString, withTimeout } from './utils'
