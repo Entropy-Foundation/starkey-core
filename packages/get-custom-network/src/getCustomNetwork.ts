@@ -4,7 +4,7 @@ import { NetworkToken } from '@starkey/utils'
 
 export async function getCustomNetwork(networkURL: string, activeNetwork?: NetworkToken) {
   let networkData: any = null
-  if (activeNetwork && (activeNetwork?.isSupraNetwork || activeNetwork?.networkName === 'SUP')) {
+  if (activeNetwork && (activeNetwork?.walletNetworkName === 'SUP' || activeNetwork?.networkName === 'SUP')) {
     networkData = await getSupraNetwork({ networkURL })
   } else {
     networkData = await getEthNetwork({ networkURL })

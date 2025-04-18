@@ -104,7 +104,7 @@ export async function getCustomNetwork(params: NetworkRequestParams) {
       const chainId = await provider.getChainId()
       if (chainId && chainId.value >= 0) {
         const network = {
-          name: 'SUPRA',
+          name: 'Supra',
           chainId: chainId.value,
         }
         return { provider: true, network }
