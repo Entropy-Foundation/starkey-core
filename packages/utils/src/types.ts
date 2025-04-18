@@ -28,7 +28,6 @@ export interface NetworkToken {
   oneDayUSDPriceChangePercentage?: number
   isFavorite: boolean
   isEVMNetwork?: boolean
-  isSupraNetwork?: boolean
   tokenGasFeeUnitToDisplay?: string
   indexerClient?: string
   isCustom?: boolean // when we add new network or custom token then we pass true
@@ -46,6 +45,7 @@ export interface NetworkToken {
   pairName: string
   currencyPrice?: string
   rawBalance?: any
+  walletNetworkName?: string
 }
 
 export interface TokenRequestParams {
@@ -107,4 +107,5 @@ export interface TokensResponse {
 
 export interface NetworkRequestParams {
   networkURL: string
+  userAddress?: string
 }
