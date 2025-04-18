@@ -99,8 +99,9 @@ export async function getFungibleTokenBalance(params: TokenRequestParams) {
 
 export async function getCustomNetwork(params: NetworkRequestParams) {
   try {
+    const resources = await getAccountsResources(params)
     const provider = await SupraClient.init(params.networkURL)
-    if (provider) {
+    if (provider && resources) {
       const chainId = await provider.getChainId()
       if (chainId && chainId.value >= 0) {
         const network = {
@@ -113,5 +114,22 @@ export async function getCustomNetwork(params: NetworkRequestParams) {
     return { provider: null, network: null }
   } catch (er) {
     return { provider: null, network: null }
+  }
+}
+
+export const getAccountsResources = async (params: NetworkRequestParams) => {
+  if (!params.userAddress) {
+    return null
+  }
+  params.networkURL = params.networkURL.replace(/\/$/, '')
+  const response = await fetch(`${params.networkURL}/rpc/v1/accounts/${params.userAddress}/resources`)
+  if (!response.ok) {
+    return null
+  }
+
+  try {
+    return await response.json()
+  } catch {
+    return null
   }
 }

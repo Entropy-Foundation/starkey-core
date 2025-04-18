@@ -107,4 +107,5 @@ export interface TokensResponse {
 
 export interface NetworkRequestParams {
   networkURL: string
+  userAddress?: string
 }
