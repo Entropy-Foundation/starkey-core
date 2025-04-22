@@ -25,7 +25,7 @@ export async function getCustomTokenData(
   let token: TokenResponseData | { error: string } = { error: 'Unsupported network' }
   if (asset.isEVMNetwork) {
     token = await getCustomTokenEth({ rpcUrl: asset.providerNetworkRPC_URL, contractAddress, userAddress })
-  } else if (asset?.walletNetworkName || asset.networkName === 'SUP') {
+  } else if (asset?.walletNetworkName === 'SUP' || asset.networkName === 'SUP') {
     token = await getCustomTokenSup({ rpcUrl: asset.providerNetworkRPC_URL, contractAddress, userAddress })
   } else if (asset.networkName === 'APT') {
     token = await getCustomTokenApt({
