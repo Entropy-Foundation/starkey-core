@@ -81,6 +81,7 @@ export async function customTokenList(
           chainId
           pair_id
           pair_name
+          tokenType
           network_id {
             id
             name
@@ -92,6 +93,7 @@ export async function customTokenList(
 
     const fetchOptions = fetchOptionsData(url, dataQuery)
     const response = await handleFetch(url, fetchOptions)
+    console.log('response', response)
     return response.data.tokens
   } catch (err) {
     return []
