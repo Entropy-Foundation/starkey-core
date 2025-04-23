@@ -35,7 +35,7 @@ export async function getCustomToken(params: TokenRequestParams) {
 
       const result = await sendRequest(params?.rpcUrl, '/rpc/v1/view', data)
       tokenInfo = result?.data?.result && result?.data?.result.length ? result?.data?.result[0] : {}
-      tokenType = 'FA coin'
+      tokenType = 'FA Coin'
     }
     const filteredSymbol = tokenInfo?.symbol.replace(/[^a-zA-Z0-9-]/g, '').slice(0, 10)
     const newToken: TokenResponseData = {
