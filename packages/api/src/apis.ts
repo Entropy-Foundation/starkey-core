@@ -81,6 +81,7 @@ export async function customTokenList(
           chainId
           pair_id
           pair_name
+          tokenType
           network_id {
             id
             name

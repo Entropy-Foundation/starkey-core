@@ -97,6 +97,7 @@ export interface Token {
   pair_id: string | null
   pair_name: string | null
   network_id: Network
+  tokenType: string
 }
 
 export interface TokensResponse {
