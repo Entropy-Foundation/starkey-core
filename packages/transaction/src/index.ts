@@ -1,1 +1,1 @@
-export { getTransactionList } from './transaction'
+export { getTransactionDetailByHash, getTransactionList } from './transaction'

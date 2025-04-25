@@ -1,2 +1,3 @@
 export { getAccountsResources, getCustomNetwork, getCustomToken, getFungibleTokenBalance } from './supra'
-export { getAccountCompleteTransactionsDetail } from './transactionList'
+export { getTransactionDetail } from './transactionDetails'
+export { getAccountCompleteTransactionsDetail, getTransactionInsights } from './transactionList'

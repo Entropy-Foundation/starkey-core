@@ -1,5 +1,5 @@
-import { getAccountCompleteTransactionsDetail } from '@starkey/supra'
-import { TransactionListRequestParams } from '@starkey/utils'
+import { getAccountCompleteTransactionsDetail, getTransactionDetail } from '@starkey/supra'
+import { TransactionDetailRequestParams, TransactionListRequestParams } from '@starkey/utils'
 
 export async function getTransactionList(params: TransactionListRequestParams) {
   let transactionList
@@ -12,4 +12,17 @@ export async function getTransactionList(params: TransactionListRequestParams) {
     )
   }
   return transactionList
+}
+
+export async function getTransactionDetailByHash(params: TransactionDetailRequestParams) {
+  let transactionDetail
+  if (params.asset.walletNetworkName === 'SUP' || params.asset.networkName === 'SUP') {
+    transactionDetail = await getTransactionDetail(
+      params.rpcURL,
+      params.transactionHash,
+      params.userAddress,
+      params.subUrl
+    )
+  }
+  return transactionDetail
 }

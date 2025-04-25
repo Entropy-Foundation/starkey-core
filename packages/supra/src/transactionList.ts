@@ -9,7 +9,7 @@ import { CoinChange, TransactionInsights, TransactionStatus, TxTypeForTransactio
  * @returns List of `TransactionDetail`
  */
 
-const getTransactionInsights = (userAddress: string, txData: any): TransactionInsights => {
+export const getTransactionInsights = (userAddress: string, txData: any): TransactionInsights => {
   let txInsights: TransactionInsights = {
     coinReceiver: '',
     coinChange: [

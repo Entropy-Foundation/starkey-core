@@ -118,3 +118,11 @@ export interface TransactionListRequestParams {
   subUrl?: string | undefined
   recordsCount?: number
 }
+
+export interface TransactionDetailRequestParams {
+  rpcURL: string
+  transactionHash: string
+  userAddress: string
+  asset: NetworkToken
+  subUrl?: string | undefined
+}

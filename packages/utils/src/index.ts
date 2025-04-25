@@ -11,6 +11,7 @@ export type {
   TokenRequestParams,
   TokenResponseData,
   TokensResponse,
+  TransactionDetailRequestParams,
   TransactionListRequestParams,
 } from './types'
 export type { TransactionDetail } from './typesSupraSdk'
