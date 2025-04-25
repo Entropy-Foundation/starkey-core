@@ -1,4 +1,11 @@
-import { NetworkRequestParams, NetworkToken, TokenRequestParams, TokenResponseData, sendRequest } from '@starkey/utils'
+import {
+  NetworkRequestParams,
+  NetworkToken,
+  TokenRequestParams,
+  TokenResponseData,
+  buildUrl,
+  sendRequest,
+} from '@starkey/utils'
 import { HexString, SupraClient } from 'supra-l1-sdk'
 
 /**
@@ -20,7 +27,7 @@ const providerMaps: INetworkProviders = {}
 
 export async function getCustomToken(params: TokenRequestParams) {
   try {
-    const supraClient = await getSupraProvider(params.rpcUrl)
+    const supraClient = await getSupraProvider(buildUrl(params?.rpcUrl))
     let tokenInfo
     let tokenType: NetworkToken['tokenType'] = 'ERC20'
 
@@ -33,7 +40,7 @@ export async function getCustomToken(params: TokenRequestParams) {
         arguments: [params?.contractAddress],
       }
 
-      const result = await sendRequest(params?.rpcUrl, '/rpc/v1/view', data)
+      const result = await sendRequest(buildUrl(params?.rpcUrl), '/rpc/v1/view', data)
       tokenInfo = result?.data?.result && result?.data?.result.length ? result?.data?.result[0] : {}
       tokenType = 'FA Coin'
     }
@@ -67,10 +74,10 @@ export async function getCustomToken(params: TokenRequestParams) {
 }
 
 async function getSupraProvider(rpcUrl: string) {
-  let provider = getRpcProvider('SUP', rpcUrl)
+  let provider = getRpcProvider('SUP', buildUrl(rpcUrl))
   if (!provider) {
-    provider = await SupraClient.init(rpcUrl)
-    setRpcProvider('SUP', rpcUrl, provider)
+    provider = await SupraClient.init(buildUrl(rpcUrl))
+    setRpcProvider('SUP', buildUrl(rpcUrl), provider)
   }
   provider = provider
   return provider
@@ -93,7 +100,7 @@ export async function getFungibleTokenBalance(params: TokenRequestParams) {
     type_arguments: ['0x1::fungible_asset::Metadata'],
     arguments: [params?.userAddress, params?.contractAddress],
   }
-  const result = await sendRequest(params?.rpcUrl, '/rpc/v1/view', data)
+  const result = await sendRequest(buildUrl(params?.rpcUrl), '/rpc/v1/view', data)
   return result?.data?.result && result?.data?.result.length ? result?.data?.result[0] : '0'
 }
 

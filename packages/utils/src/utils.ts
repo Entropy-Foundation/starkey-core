@@ -32,3 +32,5 @@ export const withTimeout = <T>(promise: Promise<T>, timeout: number): Promise<T>
     new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Operation timed out')), timeout)),
   ])
 }
+
+export const buildUrl = (...parts: string[]) => parts.map((p) => p.replace(/^\/|\/$/g, '')).join('/')

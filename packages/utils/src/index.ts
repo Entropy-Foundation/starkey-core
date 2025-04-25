@@ -15,4 +15,4 @@ export type {
   TransactionListRequestParams,
 } from './types'
 export type { TransactionDetail } from './typesSupraSdk'
-export { fetchOptionsData, generateRandomString, withTimeout } from './utils'
+export { buildUrl, fetchOptionsData, generateRandomString, withTimeout } from './utils'
