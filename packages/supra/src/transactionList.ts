@@ -1,4 +1,4 @@
-import { buildUrl, sendRequest, TransactionDetail } from '@starkey/utils'
+import { sendRequest, TransactionDetail } from '@starkey/utils'
 import { CoinChange, TransactionInsights, TransactionStatus, TxTypeForTransactionInsights } from 'supra-l1-sdk'
 
 /**
@@ -133,19 +133,9 @@ export const getAccountCompleteTransactionsDetail = async (
   subUrl: string | undefined,
   count: number = 15
 ): Promise<TransactionDetail[]> => {
-  let coinTransactions = await sendRequest(
-    buildUrl(rpcURL),
-    buildUrl(`${subUrl}/coin_transactions?count=${count}`),
-    null,
-    true
-  )
+  let coinTransactions = await sendRequest(rpcURL, `${subUrl}/coin_transactions?count=${count}`, null, true)
   //sendRequestToGetTransaction(true, `/rpc/v3/accounts/${userAddress.toString()}/coin_transactions?count=${count}`)
-  let accountSendedTransactions = await sendRequest(
-    buildUrl(rpcURL),
-    buildUrl(`${subUrl}/transactions?count=${count}`),
-    null,
-    true
-  )
+  let accountSendedTransactions = await sendRequest(rpcURL, `${subUrl}/transactions?count=${count}`, null, true)
   // sendRequestToGetTransaction(true, `/rpc/v3/accounts/${userAddress.toString()}/transactions?count=${count}`)
 
   let combinedTxArray: any[] = []

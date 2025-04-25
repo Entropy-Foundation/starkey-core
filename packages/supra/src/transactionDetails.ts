@@ -1,4 +1,4 @@
-import { TransactionDetail, buildUrl, sendRequest } from '@starkey/utils'
+import { TransactionDetail, sendRequest } from '@starkey/utils'
 import { TransactionStatus } from 'supra-l1-sdk'
 import { getTransactionInsights } from './transactionList'
 /**
@@ -13,7 +13,7 @@ export const getTransactionDetail = async (
   userAddress: string,
   subUrl: string | undefined
 ): Promise<TransactionDetail | null> => {
-  let resData = await sendRequest(buildUrl(rpcURL), buildUrl(`${subUrl}/transactions/${transactionHash}`), null, true)
+  let resData = await sendRequest(rpcURL, `${subUrl}/transactions/${transactionHash}`, null, true)
   if (resData.data == null) {
     return null
   }
