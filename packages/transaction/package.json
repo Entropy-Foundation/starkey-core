@@ -1,0 +1,14 @@
+{
+  "name": "@starkey/transaction",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "main": "dist/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@starkey/utils": "link:./../utils",
+    "@starkey/supra": "link:./../supra"
+  }
+}

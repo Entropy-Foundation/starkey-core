@@ -110,3 +110,11 @@ export interface NetworkRequestParams {
   networkURL: string
   userAddress?: string
 }
+
+export interface TransactionListRequestParams {
+  rpcURL: string
+  userAddress: string
+  asset: NetworkToken
+  subUrl?: string | undefined
+  recordsCount?: number
+}

@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 axios.defaults.timeout = 30000
 
 export async function sendRequest(
-  supraNodeURL: string,
+  nodeURL: string,
   subURL: string,
   data?: any,
   isGetMethod?: boolean,
@@ -13,7 +13,7 @@ export async function sendRequest(
     if (isGetMethod) {
       resData = await axios({
         method: 'get',
-        baseURL: supraNodeURL,
+        baseURL: nodeURL,
         url: subURL,
       })
     } else {
@@ -22,7 +22,7 @@ export async function sendRequest(
       }
       resData = await axios({
         method: 'post',
-        baseURL: supraNodeURL,
+        baseURL: nodeURL,
         url: subURL,
         data: data,
         headers: {

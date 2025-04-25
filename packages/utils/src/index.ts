@@ -11,5 +11,7 @@ export type {
   TokenRequestParams,
   TokenResponseData,
   TokensResponse,
+  TransactionListRequestParams,
 } from './types'
+export type { TransactionDetail } from './typesSupraSdk'
 export { fetchOptionsData, generateRandomString, withTimeout } from './utils'
