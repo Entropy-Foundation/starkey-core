@@ -1,4 +1,4 @@
-const TIMEOUT_ERROR = new Error('timeout');
+const TIMEOUT_ERROR = new Error('timeout')
 
 /**
  * Execute fetch and verify that the response was successful.
@@ -7,19 +7,12 @@ const TIMEOUT_ERROR = new Error('timeout');
  * @param options - Fetch options.
  * @returns The fetch response.
  */
-export async function successfulFetch(
-  request: URL | RequestInfo,
-  options?: RequestInit
-) {
-  const response = await fetch(request, options);
+export async function successfulFetch(request: URL | RequestInfo, options?: RequestInit) {
+  const response = await fetch(request, options)
   if (!response.ok) {
-    throw new Error(
-      `Fetch failed with status '${response.status}' for request '${String(
-        request
-      )}'`
-    );
+    throw new Error(`Fetch failed with status '${response.status}' for request '${String(request)}'`)
   }
-  return response;
+  return response
 }
 
 /**
@@ -29,13 +22,10 @@ export async function successfulFetch(
  * @param options - The fetch options.
  * @returns The fetch response JSON data.
  */
-export async function handleFetch(
-  request: URL | RequestInfo,
-  options?: RequestInit
-) {
-  const response = await successfulFetch(request, options);
-  const object = await response.json();
-  return object;
+export async function handleFetch(request: URL | RequestInfo, options?: RequestInit) {
+  const response = await successfulFetch(request, options)
+  const object = await response.json()
+  return object
 }
 
 /**
@@ -54,29 +44,29 @@ export async function fetchWithErrorHandling({
   timeout,
   errorCodesToCatch,
 }: {
-  url: string;
-  options?: RequestInit;
-  timeout?: number;
-  errorCodesToCatch?: number[];
+  url: string
+  options?: RequestInit
+  timeout?: number
+  errorCodesToCatch?: number[]
 }) {
-  let result;
+  let result
   try {
     if (timeout) {
       result = Promise.race([
         await handleFetch(url, options),
         new Promise<Response>((_, reject) =>
           setTimeout(() => {
-            reject(TIMEOUT_ERROR);
+            reject(TIMEOUT_ERROR)
           }, timeout)
         ),
-      ]);
+      ])
     } else {
-      result = await handleFetch(url, options);
+      result = await handleFetch(url, options)
     }
   } catch (e) {
-    logOrRethrowError(e, errorCodesToCatch);
+    logOrRethrowError(e, errorCodesToCatch)
   }
-  return result;
+  return result
 }
 
 /**
@@ -87,19 +77,15 @@ export async function fetchWithErrorHandling({
  * @param timeout - Timeout to fail request.
  * @returns Promise resolving the request.
  */
-export async function timeoutFetch(
-  url: string,
-  options?: RequestInit,
-  timeout = 500
-): Promise<Response> {
+export async function timeoutFetch(url: string, options?: RequestInit, timeout = 500): Promise<Response> {
   return Promise.race([
     successfulFetch(url, options),
     new Promise<Response>((_, reject) =>
       setTimeout(() => {
-        reject(TIMEOUT_ERROR);
+        reject(TIMEOUT_ERROR)
       }, timeout)
     ),
-  ]);
+  ])
 }
 
 /**
@@ -110,25 +96,21 @@ export async function timeoutFetch(
  */
 function logOrRethrowError(error: unknown, codesToCatch: number[] = []) {
   if (!error) {
-    return;
+    return
   }
 
   if (error instanceof Error) {
     const includesErrorCodeToCatch = codesToCatch.some((code) =>
       error.message.includes(`Fetch failed with status '${code}'`)
-    );
+    )
 
-    if (
-      includesErrorCodeToCatch ||
-      error.message.includes("Failed to fetch") ||
-      error === TIMEOUT_ERROR
-    ) {
-      console.error(error);
+    if (includesErrorCodeToCatch || error.message.includes('Failed to fetch') || error === TIMEOUT_ERROR) {
+      console.error(error)
     } else {
-      throw error;
+      throw error
     }
   } else {
     // eslint-disable-next-line @typescript-eslint/only-throw-error
-    throw error;
+    throw error
   }
 }

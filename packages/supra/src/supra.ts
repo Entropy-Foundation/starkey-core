@@ -20,7 +20,7 @@ const providerMaps: INetworkProviders = {}
 
 export async function getCustomToken(params: TokenRequestParams) {
   try {
-    const supraClient = await getSupraProvider(params.rpcUrl)
+    const supraClient = await getSupraProvider(params?.rpcUrl)
     let tokenInfo
     let tokenType: NetworkToken['tokenType'] = 'ERC20'
 
