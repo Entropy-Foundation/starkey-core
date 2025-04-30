@@ -114,7 +114,6 @@ export interface NetworkRequestParams {
 }
 
 export interface TransactionListRequestParams {
-  rpcURL: string
   asset: NetworkToken
   smartContract?: SmartContract | undefined
   count?: number
@@ -125,9 +124,9 @@ export interface SmartContract {
 }
 
 export interface TransactionDetailRequestParams {
-  rpcURL: string
   transactionHash: string
   asset: NetworkToken
+  smartContract?: SmartContract | undefined
 }
 
 export interface GetTransationTypeAndValueParams {

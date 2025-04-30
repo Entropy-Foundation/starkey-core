@@ -212,7 +212,7 @@ const transactionListFormation = async (
   smartContract: SmartContract | undefined
 ) => {
   const transactionsPromises = transactionVersion?.map(async (transaction) => {
-    let value = '0' as string | number
+    let value: string | number = '0'
     let transactionType = TRANSACTION_TYPE.TRANSACTION
     const coinType = asset.tokenContractAddress ? asset.tokenContractAddress : NATIVE_COINS.SUPRA_COIN
     if (transaction?.transactionInsights?.type === 'CoinTransfer') {
