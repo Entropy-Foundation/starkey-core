@@ -88,6 +88,7 @@ export const transactionDetailFormation = async (
   if (!transactionDetail) {
     return null
   }
+  // -30 second buffer from the current time pending & * 1000000 for convert in epoch timestamp
   const txExpirationBeforeTimestamp = (Math.ceil(Date.now() / 1000) - 30) * 1000000
 
   let transactionType = TRANSACTION_TYPE.TRANSACTION
