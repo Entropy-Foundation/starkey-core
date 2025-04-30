@@ -1,4 +1,15 @@
-import { sendRequest, TransactionDetail } from '@starkey/utils'
+import {
+  GetTransationTypeAndValueParams,
+  NATIVE_COINS,
+  NetworkToken,
+  SUPRA_EVENT_TYPES,
+  SmartContract,
+  TRANSACTION_TYPE,
+  TransactionDetail,
+  addAddressPadding,
+  sendRequest,
+} from '@starkey/utils'
+import { ethers } from 'ethers'
 import { CoinChange, TransactionInsights, TransactionStatus, TxTypeForTransactionInsights } from 'supra-l1-sdk'
 
 /**
@@ -31,7 +42,7 @@ export const getTransactionInsights = (walletAddress: string, txData: any): Tran
       txInsights.coinReceiver = txData?.payload?.Move?.arguments[0]
       txInsights.coinChange[0] = {
         amount: amountChange,
-        coinType: '0x1::supra_coin::SupraCoin',
+        coinType: NATIVE_COINS.SUPRA_COIN,
       }
       txInsights.type = TxTypeForTransactionInsights.CoinTransfer
     } else if (
@@ -127,22 +138,22 @@ const getCoinChangeAmount = (walletAddress: string, events: any[]): Array<CoinCh
   )
   return coinChangeParsed
 }
+
 export const getAccountCompleteTransactionsDetail = async (
-  rpcURL: string,
-  walletAddress: string,
-  envType: string | undefined,
+  asset: NetworkToken,
+  smartContract?: SmartContract,
   count: number = 15
-): Promise<TransactionDetail[]> => {
-  const version = envType === 'mainNet' ? 'v1' : 'v3'
+): Promise<any[]> => {
+  const version = asset?.envType === 'mainNet' ? 'v1' : 'v3'
   let coinTransactions = await sendRequest(
-    rpcURL,
-    `/rpc/${version}/accounts/${walletAddress}/coin_transactions?count=${count}`,
+    asset?.providerNetworkRPC_URL,
+    `/rpc/${version}/accounts/${asset?.address}/coin_transactions?count=${count}`,
     null,
     true
   )
   let accountSendedTransactions = await sendRequest(
-    rpcURL,
-    `/rpc/${version}/accounts/${walletAddress}/transactions?count=${count}`,
+    asset?.providerNetworkRPC_URL,
+    `/rpc/${version}/accounts/${asset?.address}/transactions?count=${count}`,
     null,
     true
   )
@@ -168,10 +179,10 @@ export const getAccountCompleteTransactionsDetail = async (
     }
   })
 
-  let coinTransactionsDetail: TransactionDetail[] = []
-  combinedTx.forEach((data: any, index: number) => {
+  let transactionVersion: TransactionDetail[] = []
+  combinedTx.forEach((data: any) => {
     if (version === 'v1' ? !data.txn_type : data.txn_type === 'automated' || data.txn_type === 'user') {
-      coinTransactionsDetail.push({
+      transactionVersion.push({
         txHash: data?.hash,
         sender: data?.header?.sender?.Move,
         sequenceNumber: data?.header?.sequence_number,
@@ -185,11 +196,229 @@ export const getAccountCompleteTransactionsDetail = async (
         events: data?.output?.Move?.events,
         blockNumber: data?.block_header?.height,
         blockHash: data?.block_header?.hash,
-        transactionInsights: getTransactionInsights(walletAddress, data),
+        transactionInsights: getTransactionInsights(asset?.address, data),
         vm_status: data?.output?.Move?.vm_status,
         txn_type: data.txn_type,
       })
     }
   })
-  return coinTransactionsDetail
+  const transactions = await transactionListFormation(asset, transactionVersion, smartContract)
+  return transactions
+}
+
+const transactionListFormation = async (
+  asset: NetworkToken,
+  transactionVersion: TransactionDetail[],
+  smartContract: SmartContract | undefined
+) => {
+  const transactionsPromises = transactionVersion?.map(async (transaction) => {
+    let value = '0' as string | number
+    let transactionType = TRANSACTION_TYPE.TRANSACTION
+    const coinType = asset.tokenContractAddress ? asset.tokenContractAddress : NATIVE_COINS.SUPRA_COIN
+    if (transaction?.transactionInsights?.type === 'CoinTransfer') {
+      transactionType = TRANSACTION_TYPE.SEND_RECEIVED
+      const coinAmountObj = transaction?.transactionInsights?.coinChange.find((item) => item.coinType === coinType)
+      if (!coinAmountObj) {
+        return null
+      }
+      const amount = coinAmountObj ? Math.abs(Number(coinAmountObj.amount)) : '0'
+      value = ethers.formatUnits(amount.toString(), asset.decimal)
+    } else if (transaction?.transactionInsights?.type === 'EntryFunctionCall') {
+      const data = getTransationTypeAndValue({
+        transaction,
+        asset,
+        coinType,
+        transactionType,
+        value,
+        smartContract,
+      })
+      if (data) {
+        if (
+          //NOTE : as of now return another transaction because fungible assets not giving contract & sender or receiver details
+          data.transactionType !== TRANSACTION_TYPE.SEND_RECEIVED &&
+          asset.tokenContractAddress &&
+          !asset.tokenContractAddress.includes('::')
+        ) {
+          return null
+        }
+        transactionType = data.transactionType
+        value = data.value
+      } else {
+        return null
+      }
+    } else {
+      const coinAmountObj = transaction?.transactionInsights?.coinChange.find((item) => item.coinType === coinType)
+      if (!coinAmountObj) {
+        return null
+      }
+      const amount = coinAmountObj ? coinAmountObj.amount : '0'
+      value = ethers.formatUnits(amount.toString(), asset.decimal)
+    }
+
+    return {
+      blockNumber: transaction?.blockNumber ? transaction.blockHash : '',
+      time: transaction?.txConfirmationTime ? Number(transaction.txConfirmationTime) / 1000000 : '',
+      hash: transaction?.txHash ? transaction.txHash : '',
+      nonce: '',
+      from: transaction?.sender ? addAddressPadding(transaction.sender) : '',
+      to: transaction?.transactionInsights.coinReceiver
+        ? addAddressPadding(transaction.transactionInsights?.coinReceiver)
+        : '',
+      value: value,
+      gas: transaction?.gasUsed ?? '0',
+      gasPrice: transaction?.gasUnitPrice ?? '0',
+      status: transaction?.status ? transaction.status : '',
+      transactionType,
+      txn_type: transaction.txn_type || null,
+    }
+  })
+  const transactions = (await Promise.all(transactionsPromises)).filter((obj) => obj !== null)
+
+  return transactions
+}
+
+export const getTransationTypeAndValue = ({
+  transaction,
+  asset,
+  coinType,
+  transactionType,
+  value,
+  smartContract,
+}: GetTransationTypeAndValueParams) => {
+  const moduleAddressGenesisVault = smartContract?.genesis
+  if (asset.tokenContractAddress && asset.tokenContractAddress.includes('::')) {
+    const coinAmountObj = transaction?.transactionInsights?.coinChange.find((item: any) => item.coinType === coinType)
+    if (!coinAmountObj) {
+      return null
+    }
+    const amount = coinAmountObj ? coinAmountObj.amount : '0'
+    value = ethers.formatUnits(amount.toString(), asset.decimal)
+  } else if (!asset.tokenContractAddress) {
+    // return if native token have gasfee entry for fungible asset
+    const fungibleWithdraw = transaction.events.filter(
+      (event: any) => event.type === SUPRA_EVENT_TYPES.FUNCTION_WITHDRAW_EVENT
+    )
+    if (fungibleWithdraw && fungibleWithdraw.length) {
+      return null
+    }
+  }
+
+  if (!transaction?.transactionInsights?.coinChange.length && transaction.transactionCost) {
+    value = `-${ethers.formatUnits(transaction.transactionCost.toString(), asset.decimal)}` // Make it negative as its minuse from balance display icon accordingly
+  }
+
+  let stakeEventTypeExists
+  let unloackEventTypeExists
+  let unstakeEventTypeExists
+  let vestingWithoutStake
+  let genesisVaultStake
+  let kycDepositValue
+  let depositEvent
+  let fungibleWithdraw
+  if (transaction?.events) {
+    stakeEventTypeExists = transaction.events.find(
+      (event: any) =>
+        event.type === SUPRA_EVENT_TYPES.ADD_STAKE_EVENT &&
+        addAddressPadding(event.data.delegator_address) === asset.address
+    )
+    if (stakeEventTypeExists) {
+      transactionType = TRANSACTION_TYPE.STAKE
+      const amountAdded = stakeEventTypeExists.data.amount_added
+      value = ethers.formatUnits(amountAdded.toString(), asset.decimal)
+    }
+    unloackEventTypeExists = transaction.events.find(
+      (event: any) =>
+        event.type === SUPRA_EVENT_TYPES.UNLOCK_STAKE_EVENT &&
+        addAddressPadding(event.data.delegator_address) === asset.address
+    )
+    if (unloackEventTypeExists) {
+      transactionType = TRANSACTION_TYPE.REQUEST_TO_UNSTAKE
+      const amountUnlocked = unloackEventTypeExists.data.amount_unlocked
+      value = ethers.formatUnits(amountUnlocked.toString(), asset.decimal)
+    }
+    unstakeEventTypeExists = transaction.events.find(
+      (event: any) =>
+        event.type === SUPRA_EVENT_TYPES.WITHDRAW_STAKE_EVENT &&
+        addAddressPadding(event.data.delegator_address) === asset.address
+    )
+    if (unstakeEventTypeExists) {
+      transactionType = TRANSACTION_TYPE.UNSTAKE
+      const amountWithdrawn = unstakeEventTypeExists.data.amount_withdrawn
+      value = ethers.formatUnits(amountWithdrawn.toString(), asset.decimal)
+    }
+    vestingWithoutStake = transaction.events.find(
+      (event: any) =>
+        event.type === SUPRA_EVENT_TYPES.VEST_EVENT &&
+        addAddressPadding(event.data.shareholder_address) === asset.address
+    )
+    if (vestingWithoutStake) {
+      const vestingAmount = transaction?.transactionInsights?.coinChange.find((item: any) => item.coinType === coinType)
+      if (!vestingAmount) {
+        return null
+      }
+      const amount = vestingAmount ? vestingAmount.amount : '0'
+      value = ethers.formatUnits(amount.toString(), asset.decimal)
+    }
+    genesisVaultStake = transaction.events.find(
+      (event: any) =>
+        event.type === moduleAddressGenesisVault + SUPRA_EVENT_TYPES.GENESIS_VAULT_USER_DEPOSIT_EVENT &&
+        addAddressPadding(event.data.user_address) === asset.address
+    )
+    if (genesisVaultStake) {
+      const genesisAmount = genesisVaultStake.data.deposit_amount
+      value = `-${ethers.formatUnits(genesisAmount.toString(), asset.decimal)}`
+    }
+    kycDepositValue = transaction.events.find(
+      (event: any) =>
+        event.type === SUPRA_EVENT_TYPES.KYC_DEPOSIT_SUPRA_VALUT_EVENT &&
+        addAddressPadding(event.data.user_account) === asset.address
+    )
+    if (kycDepositValue) {
+      const genesisAmount = kycDepositValue.data.deposit_amount
+      value = `-${ethers.formatUnits(genesisAmount.toString(), asset.decimal)}`
+    }
+    depositEvent = transaction.events.filter(
+      (event: any) =>
+        event.type === SUPRA_EVENT_TYPES.COIN_DEPOSIT_EVENT &&
+        addAddressPadding(event.data.account) === asset.address &&
+        event.data.coin_type === coinType
+    )
+
+    if (depositEvent.length > 0) {
+      const depositAmount = depositEvent.reduce((sum: number, event: any) => sum + parseInt(event.data.amount), 0)
+      value = `${ethers.formatUnits(depositAmount.toString(), asset.decimal)}`
+    }
+
+    fungibleWithdraw = transaction.events.filter(
+      (event: any) => event.type === SUPRA_EVENT_TYPES.FUNCTION_WITHDRAW_EVENT
+    )
+
+    if (fungibleWithdraw.length > 0) {
+      transactionType = TRANSACTION_TYPE.SEND_RECEIVED
+      const fungibleWithdrawAmount = fungibleWithdraw[0].data.amount
+      value = `-${ethers.formatUnits(fungibleWithdrawAmount.toString(), asset.decimal)}`
+    }
+  }
+
+  if (
+    !transaction?.transactionInsights?.coinChange.length &&
+    !stakeEventTypeExists &&
+    !unloackEventTypeExists &&
+    !unstakeEventTypeExists &&
+    !vestingWithoutStake &&
+    !genesisVaultStake &&
+    !fungibleWithdraw
+  ) {
+    value = `-${ethers.formatUnits(
+      transaction.transactionCost ? transaction.transactionCost.toString() : '0',
+      asset.decimal
+    )}` // Make it negative as its minuse from balance display icon accordingly
+  } else if (transaction?.transactionInsights?.coinChange.length) {
+    const coinAmountObj = transaction?.transactionInsights?.coinChange.find(
+      (item: any) => item.coinType === coinType.trim()
+    )
+    const amount = coinAmountObj ? coinAmountObj.amount : '0'
+    value = ethers.formatUnits(amount.toString(), asset.decimal)
+  }
+  return { value, transactionType }
 }

@@ -34,3 +34,19 @@ export const withTimeout = <T>(promise: Promise<T>, timeout: number): Promise<T>
 }
 
 export const buildUrl = (...parts: string[]) => parts.map((p) => p.replace(/^\/|\/$/g, '')).join('/')
+
+export const addAddressPadding = (address: string) => {
+  if (address) {
+    const expectedSize = 66
+    if (address.length <= expectedSize - 2 && address.length > 2 && address.substring(0, 2) !== '0x')
+      address = '0x' + address
+
+    const zerosToAdd = expectedSize - address.length
+    let zerosString = ''
+
+    for (let i = 0; i < zerosToAdd; i++) zerosString += '0'
+
+    return address.slice(0, 2) + zerosString + address.slice(2)
+  }
+  return address
+}

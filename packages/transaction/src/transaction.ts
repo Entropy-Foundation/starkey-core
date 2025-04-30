@@ -4,12 +4,7 @@ import { TransactionDetailRequestParams, TransactionListRequestParams } from '@s
 export async function getTransactionList(params: TransactionListRequestParams) {
   let transactionList
   if (params.asset.walletNetworkName === 'SUP' || params.asset.networkName === 'SUP') {
-    transactionList = await getAccountCompleteTransactionsDetail(
-      params.asset.providerNetworkRPC_URL,
-      params.asset.address,
-      params.asset.envType,
-      params?.count
-    )
+    transactionList = await getAccountCompleteTransactionsDetail(params.asset, params.smartContract, params.count)
   }
   return transactionList
 }
