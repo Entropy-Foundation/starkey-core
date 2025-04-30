@@ -9,7 +9,7 @@ import { CoinChange, TransactionInsights, TransactionStatus, TxTypeForTransactio
  * @returns List of `TransactionDetail`
  */
 
-export const getTransactionInsights = (userAddress: string, txData: any): TransactionInsights => {
+export const getTransactionInsights = (walletAddress: string, txData: any): TransactionInsights => {
   let txInsights: TransactionInsights = {
     coinReceiver: '',
     coinChange: [
@@ -25,7 +25,7 @@ export const getTransactionInsights = (userAddress: string, txData: any): Transa
   if (txData?.payload?.Move?.type === 'entry_function_payload') {
     if (txData?.payload?.Move?.function === '0x1::supra_account::transfer') {
       let amountChange = BigInt(txData?.payload?.Move?.arguments[1])
-      if (userAddress === txData?.header?.sender?.Move) {
+      if (walletAddress === txData?.header?.sender?.Move) {
         amountChange *= BigInt(-1)
       }
       txInsights.coinReceiver = txData?.payload?.Move?.arguments[0]
@@ -39,7 +39,7 @@ export const getTransactionInsights = (userAddress: string, txData: any): Transa
       txData?.payload?.Move?.function === '0x1::coin::transfer'
     ) {
       let amountChange = BigInt(txData?.payload?.Move?.arguments[1])
-      if (userAddress === txData?.header?.sender?.Move) {
+      if (walletAddress === txData?.header?.sender?.Move) {
         amountChange *= BigInt(-1)
       }
       txInsights.coinReceiver = txData?.payload?.Move?.arguments[0]
@@ -50,7 +50,7 @@ export const getTransactionInsights = (userAddress: string, txData: any): Transa
       txInsights.type = TxTypeForTransactionInsights.CoinTransfer
     } else {
       if (txData?.status === TransactionStatus.Success) {
-        txInsights.coinChange = getCoinChangeAmount(userAddress, txData?.output?.Move?.events)
+        txInsights.coinChange = getCoinChangeAmount(walletAddress, txData?.output?.Move?.events)
       }
     }
   } else {
@@ -63,12 +63,12 @@ export const getTransactionInsights = (userAddress: string, txData: any): Transa
     }
 
     if (txData?.status === TransactionStatus.Success) {
-      txInsights.coinChange = getCoinChangeAmount(userAddress, txData?.output?.Move?.events)
+      txInsights.coinChange = getCoinChangeAmount(walletAddress, txData?.output?.Move?.events)
     }
   }
   return txInsights
 }
-const getCoinChangeAmount = (userAddress: string, events: any[]): Array<CoinChange> => {
+const getCoinChangeAmount = (walletAddress: string, events: any[]): Array<CoinChange> => {
   let coinChange: Map<
     string,
     {
@@ -79,7 +79,7 @@ const getCoinChangeAmount = (userAddress: string, events: any[]): Array<CoinChan
   events.forEach((eventData) => {
     if (
       (eventData.type === '0x1::coin::CoinDeposit' || eventData.type === '0x1::coin::CoinWithdraw') &&
-      '0x' + eventData.data.account.substring(2, eventData.data.account).padStart(64, '0') === userAddress
+      '0x' + eventData.data.account.substring(2, eventData.data.account).padStart(64, '0') === walletAddress
     ) {
       if (eventData.type === '0x1::coin::CoinDeposit') {
         let curData = coinChange.get(eventData.data.coin_type)
@@ -129,17 +129,27 @@ const getCoinChangeAmount = (userAddress: string, events: any[]): Array<CoinChan
 }
 export const getAccountCompleteTransactionsDetail = async (
   rpcURL: string,
-  userAddress: string,
-  subUrl: string | undefined,
+  walletAddress: string,
+  envType: string | undefined,
   count: number = 15
 ): Promise<TransactionDetail[]> => {
-  let coinTransactions = await sendRequest(rpcURL, `${subUrl}/coin_transactions?count=${count}`, null, true)
-  //sendRequestToGetTransaction(true, `/rpc/v3/accounts/${userAddress.toString()}/coin_transactions?count=${count}`)
-  let accountSendedTransactions = await sendRequest(rpcURL, `${subUrl}/transactions?count=${count}`, null, true)
-  // sendRequestToGetTransaction(true, `/rpc/v3/accounts/${userAddress.toString()}/transactions?count=${count}`)
-
+  const version = envType === 'mainNet' ? 'v1' : 'v3'
+  let coinTransactions = await sendRequest(
+    rpcURL,
+    `/rpc/${version}/accounts/${walletAddress}/coin_transactions?count=${count}`,
+    null,
+    true
+  )
+  let accountSendedTransactions = await sendRequest(
+    rpcURL,
+    `/rpc/${version}/accounts/${walletAddress}/transactions?count=${count}`,
+    null,
+    true
+  )
   let combinedTxArray: any[] = []
-  if (coinTransactions.data != null) {
+  if (version === 'v1' && coinTransactions?.data?.record != null) {
+    combinedTxArray.push(...coinTransactions.data.record)
+  } else if (version === 'v3' && coinTransactions?.data != null) {
     combinedTxArray.push(...coinTransactions.data)
   }
   if (accountSendedTransactions.data.record != null) {
@@ -160,7 +170,7 @@ export const getAccountCompleteTransactionsDetail = async (
 
   let coinTransactionsDetail: TransactionDetail[] = []
   combinedTx.forEach((data: any, index: number) => {
-    if (data.txn_type === 'automated' || data.txn_type === 'user') {
+    if (version === 'v1' ? !data.txn_type : data.txn_type === 'automated' || data.txn_type === 'user') {
       coinTransactionsDetail.push({
         txHash: data?.hash,
         sender: data?.header?.sender?.Move,
@@ -175,7 +185,7 @@ export const getAccountCompleteTransactionsDetail = async (
         events: data?.output?.Move?.events,
         blockNumber: data?.block_header?.height,
         blockHash: data?.block_header?.hash,
-        transactionInsights: getTransactionInsights(userAddress, data),
+        transactionInsights: getTransactionInsights(walletAddress, data),
         vm_status: data?.output?.Move?.vm_status,
         txn_type: data.txn_type,
       })

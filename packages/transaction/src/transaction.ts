@@ -5,10 +5,10 @@ export async function getTransactionList(params: TransactionListRequestParams) {
   let transactionList
   if (params.asset.walletNetworkName === 'SUP' || params.asset.networkName === 'SUP') {
     transactionList = await getAccountCompleteTransactionsDetail(
-      params.rpcURL,
-      params.userAddress,
-      params.subUrl,
-      params.recordsCount
+      params.asset.providerNetworkRPC_URL,
+      params.asset.address,
+      params.asset.envType,
+      params?.count
     )
   }
   return transactionList
@@ -20,8 +20,8 @@ export async function getTransactionDetailByHash(params: TransactionDetailReques
     transactionDetail = await getTransactionDetail(
       params.rpcURL,
       params.transactionHash,
-      params.userAddress,
-      params.subUrl
+      params.asset.address,
+      params.asset.envType
     )
   }
   return transactionDetail

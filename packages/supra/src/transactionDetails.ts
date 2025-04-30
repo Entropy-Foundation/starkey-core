@@ -3,17 +3,18 @@ import { TransactionStatus } from 'supra-l1-sdk'
 import { getTransactionInsights } from './transactionList'
 /**
  * Get transaction details of given transaction hash
- * @param userAddress Supra user address
+ * @param walletAddress Supra user's wallet address
  * @param transactionHash transaction hash for getting transaction details
  * @returns `TransactionDetail`
  */
 export const getTransactionDetail = async (
   rpcURL: string,
   transactionHash: string,
-  userAddress: string,
-  subUrl: string | undefined
+  walletAddress: string,
+  envType: string | undefined
 ): Promise<TransactionDetail | null> => {
-  let resData = await sendRequest(rpcURL, `${subUrl}/transactions/${transactionHash}`, null, true)
+  const version = envType === 'mainNet' ? 'v1' : 'v3'
+  let resData = await sendRequest(rpcURL, `/rpc/${version}/transactions/${transactionHash}`, null, true)
   if (resData.data == null) {
     return null
   }
@@ -38,7 +39,7 @@ export const getTransactionDetail = async (
       events: undefined,
       blockNumber: undefined,
       blockHash: undefined,
-      transactionInsights: getTransactionInsights(userAddress, resData.data),
+      transactionInsights: getTransactionInsights(walletAddress, resData.data),
       vm_status: undefined,
       txn_type: resData.data.txn_type,
     }
@@ -57,7 +58,7 @@ export const getTransactionDetail = async (
     events: resData.data.output?.Move.events,
     blockNumber: resData.data.block_header.height,
     blockHash: resData.data.block_header.hash,
-    transactionInsights: getTransactionInsights(userAddress, resData.data),
+    transactionInsights: getTransactionInsights(walletAddress, resData.data),
     vm_status: resData.data.output.Move.vm_status,
     txn_type: resData.data.txn_type,
   }
