@@ -137,3 +137,17 @@ export interface GetTransationTypeAndValueParams {
   value: number | string
   smartContract: SmartContract | undefined
 }
+
+export interface TransactionStatusCheckResult {
+  hash?: string | undefined
+  status: 'Pending' | 'Failed' | 'Success' // match your enum if you have one
+  vmStatus?: string | undefined
+}
+
+export interface CheckTransactionStatusReqParams {
+  rpcUrl: string
+  txHash: string
+  network: string
+  envType?: string | undefined
+  reTryCount?: number | undefined
+}

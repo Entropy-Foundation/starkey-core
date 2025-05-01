@@ -3,8 +3,10 @@ import {
   SmartContract,
   TRANSACTION_TYPE,
   TransactionDetail,
+  TransactionStatusCheckResult,
   addAddressPadding,
   sendRequest,
+  sleep,
 } from '@starkey/utils'
 import { ethers } from 'ethers'
 import { TransactionStatus } from 'supra-l1-sdk'
@@ -162,4 +164,68 @@ export const transactionDetailFormation = async (
     txn_type: transactionDetail?.txn_type || null,
   }
   return txDetail
+}
+
+export const checkTransactionStatus = async (
+  rpcUrl: string,
+  txHash: string,
+  envType: string | undefined,
+  reTryCount: number = 0
+): Promise<TransactionStatusCheckResult | null> => {
+  let tx = await getTransactionStatus(rpcUrl, txHash, envType)
+  // 30 times re-try for check tx is not null
+  if (tx === null && reTryCount > 30) {
+    return null
+  }
+  if (tx === null || tx.status === 'Pending') {
+    await sleep(500)
+    return checkTransactionStatus(rpcUrl, txHash, envType, reTryCount + 1)
+  }
+  return tx
+}
+
+export const getTransactionStatus = async (
+  rpcUrl: string,
+  transactionHash: string,
+  envType: string | undefined
+): Promise<TransactionStatusCheckResult | null> => {
+  // -30 second buffer from the current time pending & * 1000000 for convert in epoch timestamp
+  const txExpirationBeforeTimestamp = (Math.ceil(Date.now() / 1000) - 30) * 1000000
+  const sanitizedRpcUrl = rpcUrl.endsWith('/') ? rpcUrl.slice(0, -1) : rpcUrl
+  const version = envType === 'mainNet' ? 'v1' : 'v3'
+  const response = await fetch(`${sanitizedRpcUrl}/rpc/${version}/transactions/${transactionHash}`, {
+    method: 'GET',
+  })
+  const resData = { data: await response.json() }
+
+  if (resData.data == null) {
+    return null
+  }
+  if (resData?.data?.header === null) {
+    return {
+      status: 'Pending',
+    }
+  }
+  let status =
+    resData.data.status == 'Unexecuted'
+      ? 'Pending'
+      : resData.data.status == 'Fail' || resData.data.status == 'Invalid'
+      ? 'Failed'
+      : resData.data.status
+  let vmStatus = resData.data?.output?.Move?.vm_status || ''
+
+  const txExpirationTimestamp = Number(resData.data.header?.expiration_timestamp.microseconds_since_unix_epoch)
+  if (
+    (resData.data.status === 'Pending' || resData.data.status === 'Invalid') &&
+    txExpirationTimestamp &&
+    txExpirationTimestamp < txExpirationBeforeTimestamp
+  ) {
+    status = 'Failed'
+    vmStatus = 'Discarded with error code: TRANSACTION_EXPIRED'
+  }
+  return {
+    hash: transactionHash,
+    status,
+    vmStatus,
+  }
 }

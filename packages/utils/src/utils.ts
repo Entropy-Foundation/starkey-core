@@ -50,3 +50,9 @@ export const addAddressPadding = (address: string) => {
   }
   return address
 }
+
+export const sleep = (timeMs: number): Promise<null> => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, timeMs)
+  })
+}

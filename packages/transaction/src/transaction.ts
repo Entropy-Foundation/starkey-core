@@ -1,5 +1,9 @@
-import { getAccountCompleteTransactionsDetail, getTransactionDetail } from '@starkey/supra'
-import { TransactionDetailRequestParams, TransactionListRequestParams } from '@starkey/utils'
+import { checkTransactionStatus, getAccountCompleteTransactionsDetail, getTransactionDetail } from '@starkey/supra'
+import {
+  CheckTransactionStatusReqParams,
+  TransactionDetailRequestParams,
+  TransactionListRequestParams,
+} from '@starkey/utils'
 
 export async function getTransactionList(params: TransactionListRequestParams) {
   let transactionList
@@ -15,4 +19,17 @@ export async function getTransactionDetailByHash(params: TransactionDetailReques
     transactionDetail = await getTransactionDetail(params.asset, params.transactionHash, params.smartContract)
   }
   return transactionDetail
+}
+
+export async function checkTransactionCompletionAndExpired(params: CheckTransactionStatusReqParams) {
+  let transactionStatusData = null
+  if (params.network === 'SUP') {
+    transactionStatusData = await checkTransactionStatus(
+      params.rpcUrl,
+      params.txHash,
+      params.envType,
+      params.reTryCount
+    )
+  }
+  return transactionStatusData
 }
