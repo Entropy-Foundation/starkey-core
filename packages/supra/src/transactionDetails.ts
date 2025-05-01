@@ -197,7 +197,12 @@ export const getTransactionStatus = async (
     method: 'GET',
   })
   const resData = { data: await response.json() }
-
+  // // NOTE ::  Submitted transaction in v1 of testnet and trying to get it from v3 it take some time to display transaction here so set this condition
+  // if (version === 'v3' && response.status === 404) {
+  //   return {
+  //     status: 'Pending',
+  //   }
+  // }
   if (resData.data == null) {
     return null
   }
