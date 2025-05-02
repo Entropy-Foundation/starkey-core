@@ -164,9 +164,16 @@ export const getAccountCompleteTransactionsDetail = async (
   } else if (version === 'v3' && coinTransactions?.data != null) {
     combinedTxArray.push(...coinTransactions.data)
   }
-  if (accountSendedTransactions.data.record != null) {
+
+  if (version === 'v1' && accountSendedTransactions?.data?.record != null) {
     combinedTxArray.push(...accountSendedTransactions.data.record)
+  } else if (version === 'v3' && accountSendedTransactions?.data != null) {
+    combinedTxArray.push(...accountSendedTransactions.data)
   }
+
+  // if (accountSendedTransactions.data.record != null) {
+  //   combinedTxArray.push(...accountSendedTransactions.data.record)
+  // }
   let combinedTx = combinedTxArray.filter(
     (item, index, self) => index === self.findIndex((data) => data.hash === item.hash)
   )
