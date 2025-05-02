@@ -171,9 +171,6 @@ export const getAccountCompleteTransactionsDetail = async (
     combinedTxArray.push(...accountSendedTransactions.data)
   }
 
-  // if (accountSendedTransactions.data.record != null) {
-  //   combinedTxArray.push(...accountSendedTransactions.data.record)
-  // }
   let combinedTx = combinedTxArray.filter(
     (item, index, self) => index === self.findIndex((data) => data.hash === item.hash)
   )
