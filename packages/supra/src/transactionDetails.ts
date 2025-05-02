@@ -23,7 +23,7 @@ export const getTransactionDetail = async (
   transactionHash: string,
   smartContract: SmartContract | undefined
 ) => {
-  let transactionDetail = null
+  // let transactionDetail = null
   const version = asset.envType === 'mainNet' ? 'v1' : 'v3'
   let resData = await sendRequest(
     asset.providerNetworkRPC_URL,
@@ -36,50 +36,51 @@ export const getTransactionDetail = async (
   }
 
   // Added Patch to resolve inconsistencies issue of `rpc_node`
-  if (
-    resData.data.status === TransactionStatus.Pending ||
-    resData.data.output === null ||
-    resData.data.header === null
-  ) {
-    transactionDetail = {
-      txHash: transactionHash,
-      sender: resData.data.header.sender.Move,
-      sequenceNumber: resData.data.header.sequence_number,
-      maxGasAmount: resData.data.header.max_gas_amount,
-      gasUnitPrice: resData.data.header.gas_unit_price,
+  const transactionDetail = buildTransactionDetail(resData.data, asset.address)
+  const transactionData = transactionDetailFormation(transactionDetail, asset, smartContract)
+  return transactionData
+}
+
+export const buildTransactionDetail = (data: any, walletAddress: string) => {
+  // Added Patch to resolve inconsistencies issue of `rpc_node`
+  if (data.status === TransactionStatus.Pending || data.output === null || data.header === null) {
+    return {
+      txHash: data?.hash,
+      sender: data?.header?.sender?.Move,
+      sequenceNumber: data?.header?.sequence_number,
+      maxGasAmount: data?.header?.max_gas_amount,
+      gasUnitPrice: data?.header?.gas_unit_price,
       gasUsed: undefined,
       transactionCost: undefined,
-      txExpirationTimestamp: Number(resData.data.header.expiration_timestamp.microseconds_since_unix_epoch),
+      txExpirationTimestamp: Number(data?.header?.expiration_timestamp?.microseconds_since_unix_epoch),
       txConfirmationTime: undefined,
-      status: resData.data.status,
+      status: data?.status,
       events: undefined,
       blockNumber: undefined,
       blockHash: undefined,
-      transactionInsights: getTransactionInsights(asset.address, resData.data),
-      vm_status: undefined,
-      txn_type: resData.data.txn_type,
+      transactionInsights: getTransactionInsights(walletAddress, data),
+      vmStatus: undefined,
+      txnType: data?.txn_type,
     }
   }
-  transactionDetail = {
-    txHash: transactionHash,
-    sender: resData.data.header.sender.Move,
-    sequenceNumber: resData.data.header.sequence_number,
-    maxGasAmount: resData.data.header.max_gas_amount,
-    gasUnitPrice: resData.data.header.gas_unit_price,
-    gasUsed: resData.data.output?.Move.gas_used,
-    transactionCost: resData.data.header.gas_unit_price * resData.data.output?.Move.gas_used,
-    txExpirationTimestamp: Number(resData.data.header.expiration_timestamp.microseconds_since_unix_epoch),
-    txConfirmationTime: Number(resData.data.block_header.timestamp.microseconds_since_unix_epoch),
-    status: resData.data.status == 'Fail' || resData.data.status == 'Invalid' ? 'Failed' : resData.data.status,
-    events: resData.data.output?.Move.events,
-    blockNumber: resData.data.block_header.height,
-    blockHash: resData.data.block_header.hash,
-    transactionInsights: getTransactionInsights(asset.address, resData.data),
-    vm_status: resData.data.output.Move.vm_status,
-    txn_type: resData.data.txn_type,
+  return {
+    txHash: data?.hash,
+    sender: data?.header?.sender?.Move,
+    sequenceNumber: data?.header?.sequence_number,
+    maxGasAmount: data?.header?.max_gas_amount,
+    gasUnitPrice: data?.header?.gas_unit_price,
+    gasUsed: data?.output?.Move?.gas_used,
+    transactionCost: data?.header?.gas_unit_price * data?.output?.Move?.gas_used,
+    txExpirationTimestamp: Number(data?.header?.expiration_timestamp?.microseconds_since_unix_epoch),
+    txConfirmationTime: Number(data?.block_header?.timestamp?.microseconds_since_unix_epoch),
+    status: data?.status == 'Fail' || data?.status == 'Invalid' ? 'Failed' : data?.status,
+    events: data?.output?.Move?.events,
+    blockNumber: data?.block_header?.height,
+    blockHash: data?.block_header?.hash,
+    transactionInsights: getTransactionInsights(walletAddress, data),
+    vmStatus: data?.output?.Move?.vm_status,
+    txnType: data?.txn_type,
   }
-  const transactionData = transactionDetailFormation(transactionDetail, asset, smartContract)
-  return transactionData
 }
 
 export const transactionDetailFormation = async (
@@ -161,7 +162,7 @@ export const transactionDetailFormation = async (
     transactionType,
     vmStatus,
     tokenDecimal: asset.decimal,
-    txn_type: transactionDetail?.txn_type || null,
+    txnType: transactionDetail?.txn_type || null,
   }
   return txDetail
 }
@@ -197,7 +198,7 @@ export const getTransactionStatus = async (
     method: 'GET',
   })
   const resData = { data: await response.json() }
-  // // NOTE ::  Submitted transaction in v1 of testnet and trying to get it from v3 it take some time to display transaction here so set this condition
+  // NOTE ::  Submitted transaction in v1 of testnet and trying to get it from v3 it take some time to display transaction here so set this condition
   // if (version === 'v3' && response.status === 404) {
   //   return {
   //     status: 'Pending',

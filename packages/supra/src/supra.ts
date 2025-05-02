@@ -20,20 +20,20 @@ const providerMaps: INetworkProviders = {}
 
 export async function getCustomToken(params: TokenRequestParams) {
   try {
-    const supraClient = await getSupraProvider(params?.rpcUrl)
+    const supraClient = await getSupraProvider(params.rpcUrl)
     let tokenInfo
     let tokenType: NetworkToken['tokenType'] = 'ERC20'
 
-    if (params?.contractAddress.includes('::')) {
+    if (params.contractAddress.includes('::')) {
       tokenInfo = await supraClient.getCoinInfo(params.contractAddress)
     } else {
       const data = {
         function: `0x1::fungible_asset::metadata`,
         type_arguments: ['0x1::fungible_asset::Metadata'],
-        arguments: [params?.contractAddress],
+        arguments: [params.contractAddress],
       }
 
-      const result = await sendRequest(params?.rpcUrl, '/rpc/v1/view', data)
+      const result = await sendRequest(params.rpcUrl, '/rpc/v1/view', data)
       tokenInfo = result?.data?.result && result?.data?.result.length ? result?.data?.result[0] : {}
       tokenType = 'FA Coin'
     }
@@ -50,7 +50,7 @@ export async function getCustomToken(params: TokenRequestParams) {
     try {
       let balance
       const address = HexString.ensure(params.userAddress)
-      if (params?.contractAddress.includes('::')) {
+      if (params.contractAddress.includes('::')) {
         balance = await supraClient.getAccountCoinBalance(address, params.contractAddress)
       } else {
         balance = await getFungibleTokenBalance(params)
@@ -91,9 +91,9 @@ export async function getFungibleTokenBalance(params: TokenRequestParams) {
   const data = {
     function: `0x1::primary_fungible_store::balance`,
     type_arguments: ['0x1::fungible_asset::Metadata'],
-    arguments: [params?.userAddress, params?.contractAddress],
+    arguments: [params.userAddress, params.contractAddress],
   }
-  const result = await sendRequest(params?.rpcUrl, '/rpc/v1/view', data)
+  const result = await sendRequest(params.rpcUrl, '/rpc/v1/view', data)
   return result?.data?.result && result?.data?.result.length ? result?.data?.result[0] : '0'
 }
 

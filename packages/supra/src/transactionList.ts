@@ -11,6 +11,7 @@ import {
 } from '@starkey/utils'
 import { ethers } from 'ethers'
 import { CoinChange, TransactionInsights, TransactionStatus, TxTypeForTransactionInsights } from 'supra-l1-sdk'
+import { buildTransactionDetail } from './transactionDetails'
 
 /**
  * Get transactions sent by the account and Coin transfer related transactions
@@ -182,24 +183,7 @@ export const getAccountCompleteTransactionsDetail = async (
   let transactionVersion: TransactionDetail[] = []
   combinedTx.forEach((data: any) => {
     if (version === 'v1' ? !data.txn_type : data.txn_type === 'automated' || data.txn_type === 'user') {
-      transactionVersion.push({
-        txHash: data?.hash,
-        sender: data?.header?.sender?.Move,
-        sequenceNumber: data?.header?.sequence_number,
-        maxGasAmount: data?.header?.max_gas_amount,
-        gasUnitPrice: data?.header?.gas_unit_price,
-        gasUsed: data?.output?.Move?.gas_used,
-        transactionCost: data?.header?.gas_unit_price * data?.output?.Move?.gas_used,
-        txExpirationTimestamp: Number(data?.header?.expiration_timestamp?.microseconds_since_unix_epoch),
-        txConfirmationTime: Number(data?.block_header?.timestamp.microseconds_since_unix_epoch),
-        status: data?.status === 'Fail' || data?.status === 'Invalid' ? 'Failed' : data?.status,
-        events: data?.output?.Move?.events,
-        blockNumber: data?.block_header?.height,
-        blockHash: data?.block_header?.hash,
-        transactionInsights: getTransactionInsights(asset?.address, data),
-        vm_status: data?.output?.Move?.vm_status,
-        txn_type: data.txn_type,
-      })
+      transactionVersion.push(buildTransactionDetail(data, asset?.address))
     }
   })
   const transactions = await transactionListFormation(asset, transactionVersion, smartContract)
@@ -269,7 +253,7 @@ const transactionListFormation = async (
       gasPrice: transaction?.gasUnitPrice ?? '0',
       status: transaction?.status ? transaction.status : '',
       transactionType,
-      txn_type: transaction.txn_type || null,
+      txnType: transaction.txn_type || null,
     }
   })
   const transactions = (await Promise.all(transactionsPromises)).filter((obj) => obj !== null)
