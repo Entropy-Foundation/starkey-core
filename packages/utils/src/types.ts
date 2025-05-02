@@ -1,3 +1,5 @@
+import { TRANSACTION_TYPE } from './constants'
+
 export type EnvironmentType = 'testNet' | 'mainNet'
 
 export interface NetworkToken {
@@ -112,17 +114,40 @@ export interface NetworkRequestParams {
 }
 
 export interface TransactionListRequestParams {
-  rpcURL: string
-  userAddress: string
   asset: NetworkToken
-  subUrl?: string | undefined
-  recordsCount?: number
+  smartContract?: SmartContract | undefined
+  count?: number
+}
+
+export interface SmartContract {
+  genesis?: string
 }
 
 export interface TransactionDetailRequestParams {
-  rpcURL: string
   transactionHash: string
-  userAddress: string
   asset: NetworkToken
-  subUrl?: string | undefined
+  smartContract?: SmartContract | undefined
+}
+
+export interface GetTransationTypeAndValueParams {
+  transaction: any // Replace `any` with proper type if known
+  asset: NetworkToken
+  coinType: string
+  transactionType: TRANSACTION_TYPE
+  value: number | string
+  smartContract: SmartContract | undefined
+}
+
+export interface TransactionStatusCheckResult {
+  hash?: string | undefined
+  status: 'Pending' | 'Failed' | 'Success' // match your enum if you have one
+  vmStatus?: string | undefined
+}
+
+export interface CheckTransactionStatusReqParams {
+  rpcUrl: string
+  txHash: string
+  network: string
+  envType?: string | undefined
+  reTryCount?: number | undefined
 }

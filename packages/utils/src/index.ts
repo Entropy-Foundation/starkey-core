@@ -1,11 +1,14 @@
 export { sendRequest, useAxios } from './axios'
-export { NATIVE_COINS } from './constants'
+export { NATIVE_COINS, SUPRA_EVENT_TYPES, TRANSACTION_TYPE } from './constants'
 export { fetchWithErrorHandling, handleFetch, successfulFetch, timeoutFetch } from './fetch'
 export type {
+  CheckTransactionStatusReqParams,
   EnvironmentType,
+  GetTransationTypeAndValueParams,
   Network,
   NetworkRequestParams,
   NetworkToken,
+  SmartContract,
   Token,
   TokenDataProps,
   TokenRequestParams,
@@ -13,6 +16,7 @@ export type {
   TokensResponse,
   TransactionDetailRequestParams,
   TransactionListRequestParams,
+  TransactionStatusCheckResult,
 } from './types'
 export type { TransactionDetail } from './typesSupraSdk'
-export { buildUrl, fetchOptionsData, generateRandomString, withTimeout } from './utils'
+export { addAddressPadding, buildUrl, fetchOptionsData, generateRandomString, sleep, withTimeout } from './utils'

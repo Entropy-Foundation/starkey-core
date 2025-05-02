@@ -40,7 +40,7 @@ export async function getCustomToken(params: TokenRequestParams) {
       const data = {
         function: `0x1::fungible_asset::metadata`,
         type_arguments: ['0x1::fungible_asset::Metadata'],
-        arguments: [params?.contractAddress],
+        arguments: [params.contractAddress],
       }
 
       const result = await sendRequest(params.rpcUrl, '/view', data)
@@ -59,7 +59,7 @@ export async function getCustomToken(params: TokenRequestParams) {
       image: (tokenInfo?.logo_url || tokenInfo?.icon_uri) ?? '',
     }
     try {
-      if (params?.contractAddress.includes('::')) {
+      if (params.contractAddress.includes('::')) {
         const coinStore = `0x1::coin::CoinStore<${params.contractAddress}>` // coin to get balance
         const tokenBalance: any = await client.getAccountResource(params.userAddress, coinStore)
         const balance = tokenBalance?.data?.coin?.value ? tokenBalance?.data?.coin?.value : 0
@@ -92,7 +92,7 @@ export async function getFungibleTokenBalance(params: TokenRequestParams) {
   const data = {
     function: `0x1::primary_fungible_store::balance`,
     type_arguments: ['0x1::fungible_asset::Metadata'],
-    arguments: [params?.userAddress, params?.contractAddress],
+    arguments: [params.userAddress, params.contractAddress],
   }
   const result = await sendRequest(params.rpcUrl, '/view', data)
   return result?.data && result?.data.length ? result?.data[0] : '0'
