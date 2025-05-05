@@ -34,6 +34,6 @@ export interface TransactionDetail {
   blockNumber?: number
   blockHash?: string
   transactionInsights: TransactionInsights
-  vm_status?: string
-  txn_type?: string
+  vmStatus?: string
+  txnType?: string
 }

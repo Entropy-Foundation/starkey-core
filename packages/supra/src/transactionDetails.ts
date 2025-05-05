@@ -123,7 +123,7 @@ export const transactionDetailFormation = async (
     value = ethers.formatUnits(amount.toString(), asset.decimal)
   }
 
-  let vmStatus = transactionDetail?.vm_status || ''
+  let vmStatus = transactionDetail?.vmStatus || ''
   let status = transactionDetail?.status || ''
 
   // const txExpirationBeforeTimestamp = Math.ceil(Date.now() / 1000) - 60 // -60 second buffer from the current time pending
@@ -162,7 +162,7 @@ export const transactionDetailFormation = async (
     transactionType,
     vmStatus,
     tokenDecimal: asset.decimal,
-    txnType: transactionDetail?.txn_type || null,
+    txnType: transactionDetail?.txnType || null,
   }
   return txDetail
 }

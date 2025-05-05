@@ -257,7 +257,8 @@ const transactionListFormation = async (
       gasPrice: transaction?.gasUnitPrice ?? '0',
       status: transaction?.status ? transaction.status : '',
       transactionType,
-      txnType: transaction.txn_type || null,
+      vmStatus: transaction?.vmStatus || '',
+      txnType: transaction?.txnType || null,
     }
   })
   const transactions = (await Promise.all(transactionsPromises)).filter((obj) => obj !== null)
