@@ -19,7 +19,7 @@ export enum TransactionStatus {
   Pending = 'Pending',
 }
 export interface TransactionDetail {
-  // txn_type not available in sdk-l1 thats why using this for automation transaction type
+  // txn_type not available in sdk-l1 that's why using this for automation transaction type
   txHash: string
   sender: string
   sequenceNumber: number
@@ -36,4 +36,5 @@ export interface TransactionDetail {
   transactionInsights: TransactionInsights
   vmStatus?: string
   txnType?: string
+  feePayerAddress?: string
 }
