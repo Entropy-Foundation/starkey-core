@@ -300,6 +300,10 @@
     rpc-websockets "^9.0.2"
     superstruct "^2.0.2"
 
+"@stakey/aptos@link:./packages/aptos":
+  version "0.0.0"
+  uid ""
+
 "@starkey/aptos@link:./packages/aptos":
   version "1.0.0"
   dependencies:

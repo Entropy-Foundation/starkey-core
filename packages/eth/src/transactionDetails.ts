@@ -1,5 +1,5 @@
 import { getFallbackProvider, getRpcProvider, setRpcProvider } from '@starkey/rpcfallback'
-import { NetworkToken, TRANSACTION_TYPE } from '@starkey/utils'
+import { NetworkToken, ReturnTransactionData, TRANSACTION_TYPE } from '@starkey/utils'
 import { ZeroAddress, ethers } from 'ethers'
 import { getTokenBalanceChange } from './ethereumParser'
 
@@ -40,7 +40,10 @@ const getFeeData = async (asset: NetworkToken) => {
  * @param {string} transactionHash - The hash of the transaction.
  * @returns {Promise<any>} - A promise that resolves to the transaction if the transaction is successful, or rejects with an error if the transaction fails.
  */
-export const getEthTransactionDetail = async (transactionHash: string, asset: NetworkToken): Promise<any> => {
+export const getEthTransactionDetail = async (
+  transactionHash: string,
+  asset: NetworkToken
+): Promise<ReturnTransactionData> => {
   const provider = await getRpcProviderData(asset)
   return new Promise((resolve, reject) => {
     provider

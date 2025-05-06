@@ -18,7 +18,7 @@ export interface NetworkToken {
   networkName: string
   tokenType: 'Native' | 'ERC20' | 'FA Coin'
   isUpdated?: boolean
-  tokenContractAddress?: string
+  tokenContractAddress?: string | undefined
   providerNetworkRPC_URL: string
   providerNetworkRPC_Network_Name: string | number
   explorerURL?: string
@@ -155,15 +155,15 @@ export interface CheckTransactionStatusReqParams {
 
 export interface ReturnTransactionData {
   // txn_type not available in sdk-l1 thats why using this for automation transaction type
-  blockNumber?: number
+  blockNumber?: number | string | undefined
   time: string | number
   hash: string
-  nonce: number | string
+  nonce: number | string | undefined
   from: string
   to: string
   value: string | number
-  gas: BigInt | undefined
-  gasPrice: BigInt | undefined
+  gas: BigInt | number | string | undefined
+  gasPrice: BigInt | string | undefined
   status?: string | undefined
   transactionType: TRANSACTION_TYPE
   gasUsed?: BigInt | undefined
@@ -171,4 +171,7 @@ export interface ReturnTransactionData {
   tokenDecimal?: number
   vmStatus?: string | undefined
   txnType?: string | undefined
+  functionName?: string | undefined
+  networkFees?: string | undefined
+  title?: string | undefined
 }

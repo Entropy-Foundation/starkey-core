@@ -1,3 +1,4 @@
+import { getAptosTransactionDetail, getAptosTransactions } from '@starkey/aptos'
 import { getEthTransactionDetail, getEthTransactions } from '@starkey/eth'
 import { checkTransactionStatus, getAccountCompleteTransactionsDetail, getTransactionDetail } from '@starkey/supra'
 import {
@@ -12,6 +13,8 @@ export async function getTransactionList(params: TransactionListRequestParams) {
     transactionList = await getAccountCompleteTransactionsDetail(params.asset, params.smartContract, params.count)
   } else if (params.asset.walletNetworkName === 'ETH' || params.asset.isEVMNetwork) {
     transactionList = await getEthTransactions(params.asset, params.apiKey)
+  } else if (params.asset.walletNetworkName === 'APT' || params.asset.networkName === 'APT') {
+    transactionList = await getAptosTransactions(params.asset)
   }
   return transactionList
 }
@@ -22,6 +25,8 @@ export async function getTransactionDetailByHash(params: TransactionDetailReques
     transactionDetail = await getTransactionDetail(params.asset, params.transactionHash, params.smartContract)
   } else if (params.asset.walletNetworkName === 'ETH' || params.asset.isEVMNetwork) {
     transactionDetail = await getEthTransactionDetail(params.transactionHash, params.asset)
+  } else if (params.asset.walletNetworkName === 'APT' || params.asset.networkName === 'APT') {
+    transactionDetail = await getAptosTransactionDetail(params.transactionHash, params.asset)
   }
   return transactionDetail
 }
