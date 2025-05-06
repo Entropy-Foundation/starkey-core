@@ -9,7 +9,11 @@ import {
 
 export async function getTransactionList(params: TransactionListRequestParams) {
   let transactionList
-  if (params.asset.walletNetworkName === 'SUP' || params.asset.networkName === 'SUP') {
+  if (
+    params.asset.walletNetworkName === 'SUP' ||
+    params.asset.networkName === 'SUP' ||
+    params.asset.networkName === 'Supra'
+  ) {
     transactionList = await getAccountCompleteTransactionsDetail(params.asset, params.smartContract, params.count)
   } else if (params.asset.walletNetworkName === 'ETH' || params.asset.isEVMNetwork) {
     transactionList = await getEthTransactions(params.asset, params.apiKey)
