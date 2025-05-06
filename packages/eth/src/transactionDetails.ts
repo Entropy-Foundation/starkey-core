@@ -1,7 +1,7 @@
 import { getFallbackProvider, getRpcProvider, setRpcProvider } from '@starkey/rpcfallback'
 import { NetworkToken, TRANSACTION_TYPE } from '@starkey/utils'
 import { ZeroAddress, ethers } from 'ethers'
-import { getTokenBalanceChange } from './etherumParser'
+import { getTokenBalanceChange } from './ethereumParser'
 
 const getRpcProviderData = async (asset: NetworkToken) => {
   let provider = getRpcProvider('ETH', asset.providerNetworkRPC_URL)
