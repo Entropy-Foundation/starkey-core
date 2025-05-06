@@ -9,6 +9,10 @@
   "license": "MIT",
   "dependencies": {
     "@starkey/utils": "link:./../utils",
+    "@starkey/rpcfallback": "link:./../rpcfallback",
     "ethers": "6.13.5"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.6"
   }
 }

@@ -117,6 +117,7 @@ export interface TransactionListRequestParams {
   asset: NetworkToken
   smartContract?: SmartContract | undefined
   count?: number
+  apiKey?: string | undefined
 }
 
 export interface SmartContract {
@@ -150,4 +151,24 @@ export interface CheckTransactionStatusReqParams {
   network: string
   envType?: string | undefined
   reTryCount?: number | undefined
+}
+
+export interface ReturnTransactionData {
+  // txn_type not available in sdk-l1 thats why using this for automation transaction type
+  blockNumber?: number
+  time: string | number
+  hash: string
+  nonce: number | string
+  from: string
+  to: string
+  value: string | number
+  gas: BigInt | undefined
+  gasPrice: BigInt | undefined
+  status?: string | undefined
+  transactionType: TRANSACTION_TYPE
+  gasUsed?: BigInt | undefined
+  cumulativeGasUsed?: BigInt
+  tokenDecimal?: number
+  vmStatus?: string | undefined
+  txnType?: string | undefined
 }

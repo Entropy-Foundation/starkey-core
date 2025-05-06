@@ -1,5 +1,5 @@
 {
-  "name": "@starkey/transaction",
+  "name": "@starkey/rpcfallback",
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
@@ -9,7 +9,6 @@
   "license": "MIT",
   "dependencies": {
     "@starkey/utils": "link:./../utils",
-    "@starkey/supra": "link:./../supra",
-    "@starkey/eth": "link:./../eth"
+    "supra-l1-sdk": "4.2.0"
   }
 }
