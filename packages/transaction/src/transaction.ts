@@ -1,5 +1,5 @@
 import { getAptosTransactionDetail, getAptosTransactions } from '@starkey/aptos'
-import { getEthTransactionDetail, getEthTransactions } from '@starkey/eth'
+import { checkEthTransactionStatus, getEthTransactionDetail, getEthTransactions } from '@starkey/eth'
 import { checkTransactionStatus, getAccountCompleteTransactionsDetail, getTransactionDetail } from '@starkey/supra'
 import {
   CheckTransactionStatusReqParams,
@@ -25,7 +25,11 @@ export async function getTransactionList(params: TransactionListRequestParams) {
 
 export async function getTransactionDetailByHash(params: TransactionDetailRequestParams) {
   let transactionDetail
-  if (params.asset.walletNetworkName === 'SUP' || params.asset.networkName === 'SUP') {
+  if (
+    params.asset.walletNetworkName === 'SUP' ||
+    params.asset.networkName === 'SUP' ||
+    params.asset.networkName === 'Supra'
+  ) {
     transactionDetail = await getTransactionDetail(params.asset, params.transactionHash, params.smartContract)
   } else if (params.asset.walletNetworkName === 'ETH' || params.asset.isEVMNetwork) {
     transactionDetail = await getEthTransactionDetail(params.transactionHash, params.asset)
@@ -37,13 +41,15 @@ export async function getTransactionDetailByHash(params: TransactionDetailReques
 
 export async function checkTransactionCompletionAndExpired(params: CheckTransactionStatusReqParams) {
   let transactionStatusData = null
-  if (params.network === 'SUP') {
+  if (params.network === 'SUP' || params.network === 'Supra') {
     transactionStatusData = await checkTransactionStatus(
       params.rpcUrl,
       params.txHash,
       params.envType,
       params.reTryCount
     )
+  } else if (params.network === 'ETH') {
+    transactionStatusData = await checkEthTransactionStatus(params.rpcUrl, params.txHash, params.chainId)
   }
   return transactionStatusData
 }

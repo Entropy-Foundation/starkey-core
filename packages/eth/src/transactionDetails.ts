@@ -3,14 +3,14 @@ import { NetworkToken, ReturnTransactionData, TRANSACTION_TYPE } from '@starkey/
 import { ZeroAddress, ethers } from 'ethers'
 import { getTokenBalanceChange } from './ethereumParser'
 
-const getRpcProviderData = async (asset: NetworkToken) => {
-  let provider = getRpcProvider('ETH', asset.providerNetworkRPC_URL)
+const getRpcProviderData = async (rpcUrl: string, chainId?: string) => {
+  let provider = getRpcProvider('ETH', rpcUrl)
   if (!provider) {
     provider = await getFallbackProvider('ETH', {
-      rpcUrl: asset.providerNetworkRPC_URL,
-      chainId: Number(asset.providerNetworkRPC_Network_Name),
+      rpcUrl: rpcUrl,
+      chainId: Number(chainId),
     })
-    setRpcProvider('ETH', asset.providerNetworkRPC_URL, provider)
+    setRpcProvider('ETH', rpcUrl, provider)
   }
 
   provider = provider
@@ -22,7 +22,7 @@ const getRpcProviderData = async (asset: NetworkToken) => {
  * @returns {Promise<any>} - A promise that resolves to the fee data if the request is successful, or rejects with an error if the request fails.
  */
 const getFeeData = async (asset: NetworkToken) => {
-  const provider = await getRpcProviderData(asset)
+  const provider = await getRpcProviderData(asset.providerNetworkRPC_URL, String(asset.providerNetworkRPC_Network_Name))
   return new Promise((resolve, reject) => {
     provider
       .getFeeData()
@@ -44,7 +44,7 @@ export const getEthTransactionDetail = async (
   transactionHash: string,
   asset: NetworkToken
 ): Promise<ReturnTransactionData> => {
-  const provider = await getRpcProviderData(asset)
+  const provider = await getRpcProviderData(asset.providerNetworkRPC_URL, String(asset.providerNetworkRPC_Network_Name))
   return new Promise((resolve, reject) => {
     provider
       .getTransaction(transactionHash)
@@ -136,4 +136,14 @@ export const getEthTransactionDetail = async (
         reject(e)
       })
   })
+}
+
+export async function checkEthTransactionStatus(rpcUrl: string, txHash: string, chainId?: string): Promise<boolean> {
+  try {
+    const provider = await getRpcProviderData(rpcUrl, chainId)
+    const receipt = await provider.waitForTransaction(txHash, 1, 150000)
+    return !!receipt?.status
+  } catch (error) {
+    return false
+  }
 }

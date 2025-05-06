@@ -151,6 +151,7 @@ export interface CheckTransactionStatusReqParams {
   network: string
   envType?: string | undefined
   reTryCount?: number | undefined
+  chainId?: string | undefined
 }
 
 export interface ReturnTransactionData {
