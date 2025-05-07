@@ -14,38 +14,8 @@ import { getAmountForAptosCoin } from './transactionList'
 export const getAptosTransactionDetail = async (hash: string, asset: NetworkToken): Promise<ReturnTransactionData> => {
   const client = new aptos.AptosClient(asset.providerNetworkRPC_URL)
   const transaction: any = await client.getTransactionByHash(hash)
-  const currentFunction = transaction?.payload?.function?.toLowerCase()
-  let transferredAmount
-  let toAddress = ''
-
-  let transactionType = TRANSACTION_TYPE.SEND_RECEIVED
-  if (
-    currentFunction !== '0x1::aptos_account::transfer_coins' &&
-    currentFunction !== '0x1::coin::transfer' &&
-    currentFunction !== '0x1::primary_fungible_store::transfer'
-  ) {
-    const dataCheck = await getTxInsight(client, transaction.version, asset.address)
-    const transferredCoin = getAmountForAptosCoin(dataCheck, asset.tokenContractAddress)
-    toAddress = currentFunction
-    if (transferredCoin) {
-      const transferredCoinBigInt = BigInt(transferredCoin)
-      transferredAmount = ethers.formatUnits(transferredCoinBigInt.toString(), asset.decimal ?? 8)
-      transactionType = TRANSACTION_TYPE.TRANSACTION
-    } else {
-      transferredAmount = 0
-    }
-  } else {
-    toAddress = transaction?.payload?.arguments?.length === 2 ? transaction?.payload?.arguments[0] : ''
-
-    transferredAmount =
-      currentFunction === '0x1::primary_fungible_store::transfer'
-        ? transaction?.payload?.arguments?.length === 3
-          ? ethers.formatUnits(transaction?.payload?.arguments[2], asset.decimal ?? 8)
-          : '0'
-        : transaction?.payload?.arguments?.length === 2
-        ? ethers.formatUnits(transaction?.payload?.arguments[1], asset.decimal ?? 8)
-        : ethers.formatUnits(transaction?.payload?.arguments[0], asset.decimal ?? 8)
-  }
+  const { toAddress, transactionType, transferredAmount } = await getTransactionData(client, transaction, asset)
+  const gasUnitPrice = transaction?.gas_unit_price
   return {
     blockNumber: 1,
     time: transaction?.timestamp
@@ -57,13 +27,60 @@ export const getAptosTransactionDetail = async (hash: string, asset: NetworkToke
     to: toAddress,
     value: transferredAmount,
     gas: transaction?.gas_used ?? '0',
-    gasPrice: transaction?.gas_unit_price ? ethers.formatUnits(transaction?.gas_unit_price, asset.decimal ?? 8) : '0',
-    networkFees: transaction?.gas_unit_price
-      ? ethers.formatUnits(transaction?.gas_unit_price * transaction?.gas_used, asset.decimal ?? 8)
-      : '0',
+    gasPrice: gasUnitPrice ? ethers.formatUnits(gasUnitPrice, asset.decimal ?? 8) : '0',
+    networkFees: gasUnitPrice ? ethers.formatUnits(gasUnitPrice * transaction?.gas_used, asset.decimal ?? 8) : '0',
     title: asset.title,
     transactionType,
     tokenDecimal: asset.decimal,
+  }
+}
+
+export const getTransactionData = async (
+  client: aptos.AptosClient,
+  transaction: any,
+  asset: NetworkToken
+): Promise<{
+  toAddress: string
+  transactionType: TRANSACTION_TYPE
+  transferredAmount: string
+}> => {
+  const decimal = asset.decimal ?? 8
+  const currentFunction = transaction?.payload?.function?.toLowerCase()
+  let transferredAmount = '0'
+  let transactionType = TRANSACTION_TYPE.SEND_RECEIVED
+  let toAddress = ''
+
+  const isStandardTransfer =
+    currentFunction === '0x1::aptos_account::transfer_coins' ||
+    currentFunction === '0x1::coin::transfer' ||
+    currentFunction === '0x1::primary_fungible_store::transfer'
+
+  if (isStandardTransfer) {
+    const args = transaction?.payload?.arguments || []
+    toAddress = args?.length === 2 ? args[0] : ''
+    if (currentFunction === '0x1::primary_fungible_store::transfer') {
+      if (args.length === 3) {
+        transferredAmount = ethers.formatUnits(args[2], decimal ?? 8)
+      }
+    } else if (args.length === 2) {
+      transferredAmount = ethers.formatUnits(args[1], decimal ?? 8)
+    } else if (args.length === 1) {
+      transferredAmount = ethers.formatUnits(args[0], decimal ?? 8)
+    }
+  } else {
+    const dataCheck = await getTxInsight(client, transaction.version, asset.address)
+    const transferredCoin = getAmountForAptosCoin(dataCheck, asset.tokenContractAddress)
+    if (transferredCoin) {
+      const transferredCoinBigInt = BigInt(transferredCoin)
+      transferredAmount = ethers.formatUnits(transferredCoinBigInt.toString(), decimal ?? 8)
+      transactionType = TRANSACTION_TYPE.TRANSACTION
+    }
+    toAddress = currentFunction
+  }
+  return {
+    toAddress,
+    transactionType,
+    transferredAmount,
   }
 }
 

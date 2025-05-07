@@ -1,7 +1,6 @@
-import { NATIVE_COINS, NetworkToken, ReturnTransactionData, TRANSACTION_TYPE } from '@starkey/utils'
+import { NATIVE_COINS, NetworkToken, ReturnTransactionData } from '@starkey/utils'
 import * as aptos from 'aptos'
-import { ethers } from 'ethers'
-import { getTxInsight } from './aptosParser'
+import { getTransactionData } from './transactionDetail'
 
 export const PAGINATION_COUNT_20 = 20
 
@@ -26,33 +25,7 @@ export const getAptosTransactions = async (asset: NetworkToken, page: number = 1
         return null
       }
       const functionName = getTransactionFunctionName(transaction, asset?.tokenContractAddress)
-      const currentFunction = transaction?.payload?.function?.toLowerCase()
-      let transferredAmount
-      let transactionType = TRANSACTION_TYPE.SEND_RECEIVED
-      if (
-        currentFunction !== '0x1::aptos_account::transfer_coins' &&
-        currentFunction !== '0x1::coin::transfer' &&
-        currentFunction !== '0x1::primary_fungible_store::transfer'
-      ) {
-        const dataCheck = await getTxInsight(client, version.transaction_version, asset.address)
-        const transferredCoin = getAmountForAptosCoin(dataCheck, asset.tokenContractAddress)
-        if (transferredCoin) {
-          const transferredCoinBigInt = BigInt(transferredCoin)
-          transferredAmount = ethers.formatUnits(transferredCoinBigInt.toString(), asset.decimal ?? 8)
-          transactionType = TRANSACTION_TYPE.TRANSACTION
-        } else {
-          transferredAmount = 0
-        }
-      } else {
-        transferredAmount =
-          currentFunction === '0x1::primary_fungible_store::transfer'
-            ? transaction?.payload?.arguments?.length === 3
-              ? ethers.formatUnits(transaction?.payload?.arguments[2], asset.decimal ?? 8)
-              : '0'
-            : transaction?.payload?.arguments?.length === 2
-            ? ethers.formatUnits(transaction?.payload?.arguments[1], asset.decimal ?? 8)
-            : ethers.formatUnits(transaction?.payload?.arguments[0], asset.decimal ?? 8)
-      }
+      const { toAddress, transactionType, transferredAmount } = await getTransactionData(client, transaction, asset)
 
       return {
         blockNumber: undefined,
@@ -62,7 +35,7 @@ export const getAptosTransactions = async (asset: NetworkToken, page: number = 1
         hash: transaction?.hash,
         nonce: undefined,
         from: transaction?.sender,
-        to: transaction?.payload?.arguments?.length === 2 ? transaction?.payload?.arguments[0] : '',
+        to: toAddress,
         value: transferredAmount,
         gas: transaction?.gas_used ?? '0',
         gasPrice: transaction?.gas_unit_price ?? '0',
@@ -93,23 +66,29 @@ export const getAptosTransactions = async (asset: NetworkToken, page: number = 1
  * @returns {string} - The function name extracted from the transaction payload.
  */
 const getTransactionFunctionName = (transaction: any, contractAddress?: string) => {
-  const functionName =
-    contractAddress && contractAddress === transaction?.payload?.type_arguments[0]
-      ? transaction?.payload?.type_arguments[0]
-      : contractAddress &&
-        transaction?.payload?.type_arguments[0] === '0x1::fungible_asset::Metadata' &&
-        transaction?.payload?.arguments[0]?.inner &&
-        contractAddress === transaction?.payload?.arguments[0]?.inner
-      ? contractAddress // sent back contract address as functionName when its fungible asset to match listing in final filter to auto update transaction list status
-      : transaction?.payload?.type_arguments?.toString()?.toLowerCase()?.includes('aptos') ||
-        transaction?.payload?.type_arguments?.length === 0
-      ? ''
-      : transaction?.payload?.type_arguments[0]
-  return functionName
+  const typeArgs = transaction?.payload?.type_arguments ?? []
+  const args = transaction?.payload?.arguments ?? []
+  if (contractAddress && contractAddress === typeArgs[0]) {
+    return contractAddress
+  }
+
+  const isFungibleAsset =
+    contractAddress && typeArgs[0] === '0x1::fungible_asset::Metadata' && args[0]?.inner === contractAddress
+
+  if (isFungibleAsset) {
+    return contractAddress // sent back contract address as functionName when its fungible asset to match listing in final filter to auto update transaction list status
+  }
+
+  const isAptTransfer = typeArgs.toString().toLowerCase().includes('aptos') || typeArgs.length === 0
+  if (isAptTransfer) {
+    return ''
+  }
+
+  return typeArgs[0] ?? ''
 }
 
 export const getAmountForAptosCoin = (data: any, contactAddress?: string) => {
-  const targetCoinType = contactAddress || NATIVE_COINS.APTOS_COIN
+  const targetCoinType = contactAddress ?? NATIVE_COINS.APTOS_COIN
   const coin = data.find((item: any) => item.coinType === targetCoinType)
-  return coin ? coin.amount : 0
+  return coin?.amount ?? 0
 }
