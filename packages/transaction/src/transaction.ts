@@ -1,4 +1,4 @@
-import { getAptosTransactionDetail, getAptosTransactions } from '@starkey/aptos'
+import { checkAptosTransactionStatus, getAptosTransactionDetail, getAptosTransactions } from '@starkey/aptos'
 import { checkEthTransactionStatus, getEthTransactionDetail, getEthTransactions } from '@starkey/eth'
 import { checkTransactionStatus, getAccountCompleteTransactionsDetail, getTransactionDetail } from '@starkey/supra'
 import {
@@ -50,6 +50,8 @@ export async function checkTransactionCompletionAndExpired(params: CheckTransact
     )
   } else if (params.network === 'ETH') {
     transactionStatusData = await checkEthTransactionStatus(params.rpcUrl, params.txHash, params.chainId)
+  } else if (params.network === 'APT') {
+    transactionStatusData = await checkAptosTransactionStatus(params.rpcUrl, params.txHash)
   }
   return transactionStatusData
 }

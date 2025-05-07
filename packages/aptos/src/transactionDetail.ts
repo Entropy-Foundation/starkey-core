@@ -66,3 +66,14 @@ export const getAptosTransactionDetail = async (hash: string, asset: NetworkToke
     tokenDecimal: asset.decimal,
   }
 }
+
+export const checkAptosTransactionStatus = async (rpcUrl: string, txHash: string) => {
+  const response = await fetch(`${rpcUrl}/transactions/by_hash/${txHash}`, {
+    method: 'GET',
+  })
+  const resData = { data: await response.json() }
+  if (!resData.data.success) {
+    throw new Error('Something went wrong')
+  }
+  return resData.data
+}
