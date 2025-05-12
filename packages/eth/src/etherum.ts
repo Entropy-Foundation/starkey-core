@@ -43,15 +43,6 @@ export async function getCustomToken(params: TokenRequestParams) {
         decimal: Number(decimal),
       }
     } catch (error: any) {
-      // const match = error.toString().match(/:\s*(.*)/)
-      // const messageSentence = match ? match[1].trim() : ''
-      // const errorMessage = messageSentence.split('(').length
-      //   ? (messageSentence.split('(')[0] as string)
-      //   : messageSentence
-
-      // return {
-      //   error: errorMessage,
-      // }
       return { error: 'Address is incorrect' }
     }
   }

@@ -18,7 +18,7 @@ export interface NetworkToken {
   networkName: string
   tokenType: 'Native' | 'ERC20' | 'FA Coin'
   isUpdated?: boolean
-  tokenContractAddress?: string | undefined
+  tokenContractAddress?: string
   providerNetworkRPC_URL: string
   providerNetworkRPC_Network_Name: string | number
   explorerURL?: string
@@ -115,9 +115,9 @@ export interface NetworkRequestParams {
 
 export interface TransactionListRequestParams {
   asset: NetworkToken
-  smartContract?: SmartContract | undefined
+  smartContract?: SmartContract
   count?: number
-  apiKey?: string | undefined
+  apiKey?: string
 }
 
 export interface SmartContract {
@@ -127,7 +127,7 @@ export interface SmartContract {
 export interface TransactionDetailRequestParams {
   transactionHash: string
   asset: NetworkToken
-  smartContract?: SmartContract | undefined
+  smartContract?: SmartContract
 }
 
 export interface GetTransationTypeAndValueParams {
@@ -136,43 +136,43 @@ export interface GetTransationTypeAndValueParams {
   coinType: string
   transactionType: TRANSACTION_TYPE
   value: number | string
-  smartContract: SmartContract | undefined
+  smartContract?: SmartContract
 }
 
 export interface TransactionStatusCheckResult {
-  hash?: string | undefined
+  hash?: string
   status: 'Pending' | 'Failed' | 'Success' // match your enum if you have one
-  vmStatus?: string | undefined
+  vmStatus?: string
 }
 
 export interface CheckTransactionStatusReqParams {
   rpcUrl: string
   txHash: string
   network: string
-  envType?: string | undefined
-  reTryCount?: number | undefined
-  chainId?: string | undefined
+  envType?: string
+  reTryCount?: number
+  chainId?: string
 }
 
 export interface ReturnTransactionData {
   // txn_type not available in sdk-l1 thats why using this for automation transaction type
-  blockNumber?: number | string | undefined
+  blockNumber?: number | string
   time: string | number
   hash: string
-  nonce: number | string | undefined
+  nonce?: number | string
   from: string
   to: string
   value: string | number
-  gas: BigInt | number | string | undefined
-  gasPrice: BigInt | string | undefined
-  status?: string | undefined
+  gas: BigInt | number | string
+  gasPrice: BigInt | string
+  status?: string
   transactionType: TRANSACTION_TYPE
   gasUsed?: BigInt | string
   cumulativeGasUsed?: BigInt | string
   tokenDecimal?: number
-  vmStatus?: string | undefined
-  txnType?: string | undefined
-  functionName?: string | undefined
-  networkFees?: string | undefined
-  title?: string | undefined
+  vmStatus?: string
+  txnType?: string
+  functionName?: string
+  networkFees?: string
+  title?: string
 }

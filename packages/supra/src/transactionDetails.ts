@@ -21,7 +21,7 @@ import { getTransactionInsights, getTransationTypeAndValue } from './transaction
 export const getTransactionDetail = async (
   asset: NetworkToken,
   transactionHash: string,
-  smartContract: SmartContract | undefined
+  smartContract?: SmartContract
 ) => {
   // let transactionDetail = null
   const version = asset.envType === 'mainNet' ? 'v1' : 'v3'
@@ -89,7 +89,7 @@ export const buildTransactionDetail = (data: any, walletAddress: string) => {
 export const transactionDetailFormation = async (
   transactionDetail: TransactionDetail | null,
   asset: NetworkToken,
-  smartContract: SmartContract | undefined
+  smartContract?: SmartContract
 ) => {
   if (!transactionDetail) {
     return null
@@ -174,7 +174,7 @@ export const transactionDetailFormation = async (
 export const checkTransactionStatus = async (
   rpcUrl: string,
   txHash: string,
-  envType: string | undefined,
+  envType?: string,
   reTryCount: number = 0
 ): Promise<TransactionStatusCheckResult | null> => {
   let tx = await getTransactionStatus(rpcUrl, txHash, envType)
@@ -192,7 +192,7 @@ export const checkTransactionStatus = async (
 export const getTransactionStatus = async (
   rpcUrl: string,
   transactionHash: string,
-  envType: string | undefined
+  envType?: string
 ): Promise<TransactionStatusCheckResult | null> => {
   // -30 second buffer from the current time pending & * 1000000 for convert in epoch timestamp
   const txExpirationBeforeTimestamp = (Math.ceil(Date.now() / 1000) - 30) * 1000000

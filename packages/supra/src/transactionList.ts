@@ -197,7 +197,7 @@ export const getAccountCompleteTransactionsDetail = async (
 const transactionListFormation = async (
   asset: NetworkToken,
   transactionVersion: TransactionDetail[],
-  smartContract: SmartContract | undefined
+  smartContract?: SmartContract
 ) => {
   const transactionsPromises = transactionVersion?.map(async (transaction) => {
     let value: string | number = '0'
