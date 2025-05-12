@@ -167,8 +167,8 @@ export interface ReturnTransactionData {
   gasPrice: BigInt | string | undefined
   status?: string | undefined
   transactionType: TRANSACTION_TYPE
-  gasUsed?: BigInt | undefined
-  cumulativeGasUsed?: BigInt
+  gasUsed?: BigInt | string
+  cumulativeGasUsed?: BigInt | string
   tokenDecimal?: number
   vmStatus?: string | undefined
   txnType?: string | undefined

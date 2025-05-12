@@ -44,98 +44,80 @@ export const getEthTransactionDetail = async (
   transactionHash: string,
   asset: NetworkToken
 ): Promise<ReturnTransactionData> => {
-  const provider = await getRpcProviderData(asset.providerNetworkRPC_URL, String(asset.providerNetworkRPC_Network_Name))
-  return new Promise((resolve, reject) => {
-    provider
-      .getTransaction(transactionHash)
-      .then(async (txData: any) => {
-        let transactionType = TRANSACTION_TYPE.SEND_RECEIVED
-        let toAddress = txData.to
-        let fromAddress = txData.from
-        const res = await provider.getTransactionReceipt(transactionHash)
-        const address = asset.address.toLowerCase()
-        let log: any
-        const decimals = asset.decimal ?? 6
-        let value = ethers.formatUnits(txData.value, txData.tokenDecimal)
-        if (asset.tokenContractAddress) {
-          const parser = await getTokenBalanceChange(provider, transactionHash, address)
-          if (parser && parser.transferEvents) {
-            let filteredTransfer
-            if (parser.tokenBalanceChanges.length === 2) {
-              // normal send_receive
-              filteredTransfer = parser.transferEvents.find(
-                (event: any) =>
-                  (event.from.toLowerCase() === address && event.to.toLowerCase() !== ZeroAddress) ||
-                  (event.to.toLowerCase() === address && event.from.toLowerCase() !== ZeroAddress)
-              )
-              if (!filteredTransfer) {
-                // swap and other transactions
-                filteredTransfer = parser.transferEvents.find(
-                  (event: any) =>
-                    event.to.toLowerCase() === address &&
-                    event.tokenAddress.toLowerCase() === asset.tokenContractAddress?.toLowerCase()
-                )
-              }
-            } else {
-              // swap and other transactions
-              filteredTransfer = parser.transferEvents.find(
-                (event: any) =>
-                  event.tokenAddress.toLowerCase() === asset.tokenContractAddress?.toLowerCase() &&
-                  event.to.toLowerCase() === address.toLowerCase()
-              )
-              if (!filteredTransfer) {
-                filteredTransfer = parser.transferEvents.find(
-                  (event: any) => event.tokenAddress.toLowerCase() === asset.tokenContractAddress?.toLowerCase()
-                )
-              }
-            }
-            const result = filteredTransfer
-              ? { from: filteredTransfer.from, to: filteredTransfer.to, value: filteredTransfer.value }
-              : null
-            if (result) {
-              fromAddress = result.from
-              toAddress = result.to
-              value = ethers.formatUnits(result.value || '0', decimals)
-            }
-          }
-        }
-        let networkFees: string = '0'
-        if (res) {
-          networkFees = ethers.formatEther(res?.gasPrice * res?.gasUsed)
-        }
+  try {
+    const provider = await getRpcProviderData(
+      asset.providerNetworkRPC_URL,
+      String(asset.providerNetworkRPC_Network_Name)
+    )
+    const txData = await provider.getTransaction(transactionHash)
+    const receipt = await provider.getTransactionReceipt(transactionHash)
+    const block = await provider.getBlock(txData.blockNumber)
+    const feeData: any = await getFeeData(asset)
+    const isTokenTransfer = Boolean(asset.tokenContractAddress)
+    const address = asset.address.toLowerCase()
+    const decimals = asset.decimal ?? 6
+    let fromAddress = txData.from
+    let toAddress = txData.to
+    let value = ethers.formatUnits(txData.value, Number(decimals))
+    let transactionType = TRANSACTION_TYPE.SEND_RECEIVED
+    let transactionStatus: 'Success' | 'Failed' | 'Pending' = 'Pending'
+    let networkFees = '0'
 
-        const block = await provider.getBlock(txData.blockNumber)
-        const feeData: any = await getFeeData(asset)
+    if (receipt) {
+      transactionStatus = receipt.status === 1 ? 'Success' : 'Failed'
+      networkFees = ethers.formatEther(receipt.gasUsed * (receipt.effectiveGasPrice ?? txData.gasPrice))
+    }
 
-        // Check transaction status
-        let transactionStatus = 'Pending' // Default to pending
-        if (res) {
-          transactionStatus = res.status === 1 ? 'Success' : 'Failed'
+    if (isTokenTransfer) {
+      const parser = await getTokenBalanceChange(provider, transactionHash, address)
+      if (parser?.transferEvents?.length) {
+        const lowerTokenAddress = asset.tokenContractAddress?.toLowerCase()
+        const isSimpleTransfer = parser.tokenBalanceChanges.length === 2
+
+        // Define matching conditions
+        const matchSendReceive = (event: any) =>
+          (event.from.toLowerCase() === address && event.to.toLowerCase() !== ZeroAddress) ||
+          (event.to.toLowerCase() === address && event.from.toLowerCase() !== ZeroAddress)
+
+        const matchToAddress = (event: any) =>
+          event.to.toLowerCase() === address && event.tokenAddress.toLowerCase() === lowerTokenAddress
+
+        const matchTokenOnly = (event: any) => event.tokenAddress.toLowerCase() === lowerTokenAddress
+
+        // Apply matching logic
+        const filteredTransfer =
+          parser.transferEvents.find(isSimpleTransfer ? matchSendReceive : matchToAddress) ||
+          parser.transferEvents.find(matchTokenOnly)
+
+        if (filteredTransfer) {
+          fromAddress = filteredTransfer.from
+          toAddress = filteredTransfer.to
+          value = ethers.formatUnits(filteredTransfer.value || '0', decimals)
         }
-        const tx: any = {
-          blockNumber: txData.blockNumber,
-          time: block?.timestamp || '',
-          hash: txData.hash,
-          nonce: txData.nonce,
-          from: fromAddress,
-          to: toAddress,
-          value: value,
-          gas: '',
-          gasPrice: txData.gasPrice || feeData.gasPrice,
-          gasUsed: '',
-          cumulativeGasUsed: '',
-          tokenDecimal: asset.decimal,
-          networkFees: networkFees,
-          title: asset.title,
-          transactionType,
-          status: transactionStatus,
-        }
-        resolve(tx)
-      })
-      .catch((e: any) => {
-        reject(e)
-      })
-  })
+      }
+    }
+
+    return {
+      blockNumber: txData.blockNumber,
+      time: block?.timestamp || '',
+      hash: txData.hash,
+      nonce: txData.nonce,
+      from: fromAddress,
+      to: toAddress,
+      value: value,
+      gas: '',
+      gasPrice: txData.gasPrice || feeData.gasPrice,
+      gasUsed: '',
+      cumulativeGasUsed: '',
+      tokenDecimal: asset.decimal,
+      networkFees: networkFees,
+      title: asset.title,
+      transactionType,
+      status: transactionStatus,
+    }
+  } catch (error) {
+    throw error
+  }
 }
 
 export async function checkEthTransactionStatus(rpcUrl: string, txHash: string, chainId?: string): Promise<boolean> {
