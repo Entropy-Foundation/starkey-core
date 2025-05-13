@@ -56,7 +56,8 @@ export async function customTokenList(
         SOL: 'Solana',
         SUP: 'SUP',
       }
-      filters['network_id'] = { name: { _eq: networkMap[networkName] } }
+      const mappedName = networkMap[networkName] ?? networkName
+      filters['network_id'] = { name: { _eq: mappedName } }
     }
 
     // 3. If search value is provided, filter by name or symbol containing search text
