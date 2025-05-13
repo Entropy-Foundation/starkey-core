@@ -8,6 +8,7 @@ export type {
   Network,
   NetworkRequestParams,
   NetworkToken,
+  ReturnTransactionData,
   SmartContract,
   Token,
   TokenDataProps,

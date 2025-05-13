@@ -309,8 +309,13 @@
 "@starkey/eth@link:./packages/eth":
   version "1.0.0"
   dependencies:
+    "@starkey/rpcfallback" "link:./packages/rpcfallback"
     "@starkey/utils" "link:./packages/utils"
     ethers "6.13.5"
+
+"@starkey/rpcfallback@link:./packages/rpcfallback":
+  version "0.0.0"
+  uid ""
 
 "@starkey/solana@link:./packages/solana":
   version "1.0.0"
@@ -351,6 +356,13 @@
   integrity sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==
   dependencies:
     defer-to-connect "^2.0.0"
+
+"@types/bn.js@^5.1.6":
+  version "5.1.6"
+  resolved "https://registry.yarnpkg.com/@types/bn.js/-/bn.js-5.1.6.tgz#9ba818eec0c85e4d3c679518428afdf611d03203"
+  integrity sha512-Xh8vSwUeMKeYYrj3cX4lGQgFSF/N03r+tv4AiLl1SucqV+uTQpxRcnM8AkXKHwYP9ZPXOYXRr2KPXpVlIvqh9w==
+  dependencies:
+    "@types/node" "*"
 
 "@types/cacheable-request@^6.0.1":
   version "6.0.3"

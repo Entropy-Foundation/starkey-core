@@ -21,7 +21,7 @@ import { getTransactionInsights, getTransationTypeAndValue } from './transaction
 export const getTransactionDetail = async (
   asset: NetworkToken,
   transactionHash: string,
-  smartContract: SmartContract | undefined,
+  smartContract?: SmartContract
 ) => {
   // let transactionDetail = null
   const version = asset.envType === 'mainNet' ? 'v1' : 'v3'
@@ -29,7 +29,7 @@ export const getTransactionDetail = async (
     asset.providerNetworkRPC_URL,
     `/rpc/${version}/transactions/${transactionHash}`,
     null,
-    true,
+    true
   )
   if (resData.data == null) {
     return null
@@ -43,6 +43,7 @@ export const getTransactionDetail = async (
 
 export const buildTransactionDetail = (data: any, walletAddress: string) => {
   // Added Patch to resolve inconsistencies issue of `rpc_node`
+  const feePayerAddress = data?.authenticator?.Move?.FeePayer?.fee_payer_address
   if (data.status === TransactionStatus.Pending || data.output === null || data.header === null) {
     return {
       txHash: data?.hash,
@@ -61,7 +62,7 @@ export const buildTransactionDetail = (data: any, walletAddress: string) => {
       transactionInsights: getTransactionInsights(walletAddress, data),
       vmStatus: undefined,
       txnType: data?.txn_type,
-      feePayerAddress: data?.authenticator?.Move?.FeePayer?.fee_payer_address,
+      feePayerAddress: feePayerAddress ? addAddressPadding(feePayerAddress) : undefined,
     }
   }
   return {
@@ -81,14 +82,14 @@ export const buildTransactionDetail = (data: any, walletAddress: string) => {
     transactionInsights: getTransactionInsights(walletAddress, data),
     vmStatus: data?.output?.Move?.vm_status,
     txnType: data?.txn_type,
-    feePayerAddress: data?.authenticator?.Move?.FeePayer?.fee_payer_address,
+    feePayerAddress: feePayerAddress ? addAddressPadding(feePayerAddress) : undefined,
   }
 }
 
 export const transactionDetailFormation = async (
   transactionDetail: TransactionDetail | null,
   asset: NetworkToken,
-  smartContract: SmartContract | undefined,
+  smartContract?: SmartContract
 ) => {
   if (!transactionDetail) {
     return null
@@ -173,8 +174,8 @@ export const transactionDetailFormation = async (
 export const checkTransactionStatus = async (
   rpcUrl: string,
   txHash: string,
-  envType: string | undefined,
-  reTryCount: number = 0,
+  envType?: string,
+  reTryCount: number = 0
 ): Promise<TransactionStatusCheckResult | null> => {
   let tx = await getTransactionStatus(rpcUrl, txHash, envType)
   // 30 times re-try for check tx is not null
@@ -191,7 +192,7 @@ export const checkTransactionStatus = async (
 export const getTransactionStatus = async (
   rpcUrl: string,
   transactionHash: string,
-  envType: string | undefined,
+  envType?: string
 ): Promise<TransactionStatusCheckResult | null> => {
   // -30 second buffer from the current time pending & * 1000000 for convert in epoch timestamp
   const txExpirationBeforeTimestamp = (Math.ceil(Date.now() / 1000) - 30) * 1000000
@@ -219,8 +220,8 @@ export const getTransactionStatus = async (
     resData.data.status == 'Unexecuted'
       ? 'Pending'
       : resData.data.status == 'Fail' || resData.data.status == 'Invalid'
-        ? 'Failed'
-        : resData.data.status
+      ? 'Failed'
+      : resData.data.status
   let vmStatus = resData.data?.output?.Move?.vm_status || ''
 
   const txExpirationTimestamp = Number(resData.data.header?.expiration_timestamp.microseconds_since_unix_epoch)
