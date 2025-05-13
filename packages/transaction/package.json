@@ -6,5 +6,10 @@
     "watch": "tsc --watch"
   },
   "main": "dist/index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@starkey/supra": "link:./../supra",
+    "@starkey/eth": "link:./../eth",
+    "@starkey/aptos": "link:./../aptos"
+  }
 }

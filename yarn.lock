@@ -304,7 +304,8 @@
   version "1.0.0"
   dependencies:
     "@starkey/utils" "link:./packages/utils"
-    aptos "^1.21.0"
+    aptos "1.21.0"
+    ethers "6.13.5"
 
 "@starkey/eth@link:./packages/eth":
   version "1.0.0"
@@ -328,11 +329,13 @@
   dependencies:
     "@mysten/sui.js" "0.54.1"
     "@starkey/utils" "link:./packages/utils"
+    ethers "6.13.5"
 
 "@starkey/supra@link:./packages/supra":
   version "1.0.0"
   dependencies:
     "@starkey/utils" "link:./packages/utils"
+    ethers "6.13.5"
     supra-l1-sdk "4.2.0"
 
 "@starkey/utils@link:./packages/utils":
@@ -613,7 +616,7 @@ ansi-styles@^6.0.0:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-6.2.1.tgz#0e62320cf99c21afff3b3012192546aacbfb05c5"
   integrity sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==
 
-aptos@^1.21.0:
+aptos@1.21.0:
   version "1.21.0"
   resolved "https://registry.yarnpkg.com/aptos/-/aptos-1.21.0.tgz#346623967a6d038a85f02d71ed6ec62c4cd2ae5e"
   integrity sha512-PRKjoFgL8tVEc9+oS7eJUv8GNxx8n3+0byH2+m7CP3raYOD6yFKOecuwjVMIJmgfpjp6xH0P0HDMGZAXmSyU0Q==
