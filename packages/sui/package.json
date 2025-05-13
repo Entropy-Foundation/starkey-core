@@ -9,6 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "@mysten/sui.js": "0.54.1",
+    "ethers": "6.13.5",
     "@starkey/utils": "link:./../utils"
   }
 }
