@@ -1,4 +1,5 @@
 import {
+  NATIVE_COINS,
   NetworkToken,
   SmartContract,
   TRANSACTION_TYPE,
@@ -98,7 +99,7 @@ export const transactionDetailFormation = async (
   const txExpirationBeforeTimestamp = (Math.ceil(Date.now() / 1000) - 30) * 1000000
 
   let transactionType = TRANSACTION_TYPE.TRANSACTION
-  const coinType = asset.tokenContractAddress ? asset.tokenContractAddress : '0x1::supra_coin::SupraCoin'
+  const coinType = asset.tokenContractAddress ? asset.tokenContractAddress : NATIVE_COINS.SUPRA_COIN
   let value: string | number = '0'
   if (transactionDetail?.transactionInsights?.type === 'CoinTransfer') {
     transactionType = TRANSACTION_TYPE.SEND_RECEIVED
