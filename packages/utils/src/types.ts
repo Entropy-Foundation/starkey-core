@@ -108,9 +108,14 @@ export interface TokensResponse {
   }
 }
 
+export interface PaginationArgs {
+  count?: number;
+  start?: string | number;
+}
 export interface NetworkRequestParams {
   networkURL: string
   userAddress?: string
+  paginationArgs?: PaginationArgs
 }
 
 export interface TransactionListRequestParams {

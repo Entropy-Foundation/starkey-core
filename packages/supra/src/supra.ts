@@ -121,8 +121,17 @@ export const getAccountsResources = async (params: NetworkRequestParams) => {
   if (!params.userAddress) {
     return null
   }
+  const { paginationArgs } = params
+
   params.networkURL = params.networkURL.replace(/\/$/, '')
-  const response = await fetch(`${params.networkURL}/rpc/v1/accounts/${params.userAddress}/resources`)
+  let requestUrl = `${params.networkURL}/rpc/v1/accounts/${params.userAddress}/resourcescount=${
+    paginationArgs?.count ?? 20
+  }`
+  if (paginationArgs?.start) {
+    requestUrl += `&start=${paginationArgs.start}`
+  }
+
+  const response = await fetch(requestUrl)
   if (!response.ok) {
     return null
   }
