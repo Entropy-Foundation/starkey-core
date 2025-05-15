@@ -42,19 +42,19 @@ const getFeeData = async (asset: NetworkToken) => {
  */
 export const getEthTransactionDetail = async (
   transactionHash: string,
-  asset: NetworkToken
+  asset: NetworkToken,
 ): Promise<ReturnTransactionData> => {
   try {
     const provider = await getRpcProviderData(
       asset.providerNetworkRPC_URL,
-      String(asset.providerNetworkRPC_Network_Name)
+      String(asset.providerNetworkRPC_Network_Name),
     )
     const txData = await provider.getTransaction(transactionHash)
     const receipt = await provider.getTransactionReceipt(transactionHash)
     const block = await provider.getBlock(txData.blockNumber)
     const feeData: any = await getFeeData(asset)
     const isTokenTransfer = Boolean(asset.tokenContractAddress)
-    const address = asset.address.toLowerCase()
+    const address = asset.address?.toLowerCase()
     const decimals = asset.decimal ?? 6
     let fromAddress = txData.from
     let toAddress = txData.to
@@ -76,13 +76,13 @@ export const getEthTransactionDetail = async (
 
         // Define matching conditions
         const matchSendReceive = (event: any) =>
-          (event.from.toLowerCase() === address && event.to.toLowerCase() !== ZeroAddress) ||
-          (event.to.toLowerCase() === address && event.from.toLowerCase() !== ZeroAddress)
+          (event?.from?.toLowerCase() === address && event?.to?.toLowerCase() !== ZeroAddress) ||
+          (event?.to?.toLowerCase() === address && event?.from?.toLowerCase() !== ZeroAddress)
 
         const matchToAddress = (event: any) =>
-          event.to.toLowerCase() === address && event.tokenAddress.toLowerCase() === lowerTokenAddress
+          event?.to?.toLowerCase() === address && event?.tokenAddress?.toLowerCase() === lowerTokenAddress
 
-        const matchTokenOnly = (event: any) => event.tokenAddress.toLowerCase() === lowerTokenAddress
+        const matchTokenOnly = (event: any) => event?.tokenAddress?.toLowerCase() === lowerTokenAddress
 
         // Apply matching logic
         const filteredTransfer =
