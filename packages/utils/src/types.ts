@@ -109,8 +109,8 @@ export interface TokensResponse {
 }
 
 export interface PaginationArgs {
-  count?: number;
-  start?: string | number;
+  count?: number
+  start?: string | number
 }
 export interface NetworkRequestParams {
   networkURL: string
@@ -180,4 +180,10 @@ export interface ReturnTransactionData {
   functionName?: string
   networkFees?: string
   title?: string
+}
+
+export interface CustomTokenListRequestParams {
+  networkURL: string
+  userAddress: string
+  walletNetworkName: string
 }

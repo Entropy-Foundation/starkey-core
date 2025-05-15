@@ -1,4 +1,11 @@
-import { NetworkRequestParams, NetworkToken, TokenRequestParams, TokenResponseData, sendRequest } from '@starkey/utils'
+import {
+  CustomTokenListRequestParams,
+  NetworkRequestParams,
+  NetworkToken,
+  TokenRequestParams,
+  TokenResponseData,
+  sendRequest,
+} from '@starkey/utils'
 import { HexString, SupraClient } from 'supra-l1-sdk'
 
 /**
@@ -140,5 +147,48 @@ export const getAccountsResources = async (params: NetworkRequestParams) => {
     return await response.json()
   } catch {
     return null
+  }
+}
+
+export const getSupraCustomTokensList = async (params: CustomTokenListRequestParams): Promise<string[]> => {
+  try {
+    const { networkURL, userAddress } = params
+    // Fetch account resources from the provided RPC URL and wallet address
+    const response = await getAccountsResources({
+      networkURL: networkURL,
+      userAddress: userAddress,
+      paginationArgs: {
+        count: 100,
+        start: '',
+      },
+    })
+
+    if (!response?.Resources?.resource) {
+      return []
+    }
+
+    const resources = response.Resources.resource
+    const coinStores = resources.filter(([, value]: [string, { name: string }]) => value.name === 'CoinStore')
+    const tokenAddresses = coinStores
+      .map(([key]: [string]) => {
+        const match = key.match(/<(.+)>/)
+        if (match) {
+          let address = match[1] as string
+          if (!address.startsWith('0x')) {
+            address = '0x' + address
+          }
+          return address
+        }
+        return null
+      })
+      .filter(Boolean)
+      .filter(
+        (address: string) =>
+          address !== '0x0000000000000000000000000000000000000000000000000000000000000001::supra_coin::SupraCoin', // Exclude main token address
+      )
+
+    return tokenAddresses
+  } catch (error) {
+    return []
   }
 }
