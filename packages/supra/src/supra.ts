@@ -184,7 +184,7 @@ export const getSupraCustomTokensList = async (params: CustomTokenListRequestPar
       .filter(Boolean)
       .filter(
         (address: string) =>
-          address !== '0x0000000000000000000000000000000000000000000000000000000000000001::supra_coin::SupraCoin', // Exclude main token address
+          address !== '0x0000000000000000000000000000000000000000000000000000000000000001::supra_coin::SupraCoin' // Exclude main token address
       )
 
     return tokenAddresses

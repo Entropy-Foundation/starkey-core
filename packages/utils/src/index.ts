@@ -3,11 +3,13 @@ export { NATIVE_COINS, SUPRA_EVENT_TYPES, TRANSACTION_TYPE } from './constants'
 export { fetchWithErrorHandling, handleFetch, successfulFetch, timeoutFetch } from './fetch'
 export type {
   CheckTransactionStatusReqParams,
+  CustomTokenListRequestParams,
   EnvironmentType,
   GetTransationTypeAndValueParams,
   Network,
   NetworkRequestParams,
   NetworkToken,
+  PaginationArgs,
   ReturnTransactionData,
   SmartContract,
   Token,
@@ -18,8 +20,6 @@ export type {
   TransactionDetailRequestParams,
   TransactionListRequestParams,
   TransactionStatusCheckResult,
-  PaginationArgs,
-  CustomTokenListRequestParams,
 } from './types'
 export type { TransactionDetail } from './typesSupraSdk'
 export { addAddressPadding, buildUrl, fetchOptionsData, generateRandomString, sleep, withTimeout } from './utils'

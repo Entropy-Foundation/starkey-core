@@ -1,1 +1,1 @@
-export { getCustomTokenData, getCustomTokenContractAddresses } from './getCustomToken'
+export { getCustomTokenContractAddresses, getCustomTokenData } from './getCustomToken'
