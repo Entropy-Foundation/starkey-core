@@ -2,8 +2,8 @@ import { getCustomToken as getCustomTokenApt } from '@starkey/aptos'
 import { getCustomToken as getCustomTokenEth } from '@starkey/eth'
 import { getCustomToken as getCustomTokenSol } from '@starkey/solana'
 import { getCustomToken as getCustomTokenSui } from '@starkey/sui'
-import { getCustomToken as getCustomTokenSup } from '@starkey/supra'
-import { NetworkToken, TokenResponseData, generateRandomString } from '@starkey/utils'
+import { getCustomToken as getCustomTokenSup, getSupraCustomTokensList } from '@starkey/supra'
+import { CustomTokenListRequestParams, NetworkToken, TokenResponseData, generateRandomString } from '@starkey/utils'
 import { ethers } from 'ethers'
 
 /**
@@ -60,4 +60,13 @@ export async function getCustomTokenData(
   }
   delete newToken.rawBalance
   return newToken
+}
+
+export async function getCustomTokenContractAddresses(param: CustomTokenListRequestParams) {
+  let allTokensList: string[] = []
+  const { walletNetworkName } = param
+  if (walletNetworkName === 'SUP') {
+    allTokensList = await getSupraCustomTokensList(param)
+  }
+  return allTokensList
 }
