@@ -20,7 +20,7 @@ export async function getCustomTokenData(
   asset: NetworkToken,
   contractAddress: string,
   userAddress: string,
-  networkEnvironment: string,
+  networkEnvironment: string
 ) {
   let token: TokenResponseData | { error: string } = { error: 'Unsupported network' }
   if (asset.isEVMNetwork) {

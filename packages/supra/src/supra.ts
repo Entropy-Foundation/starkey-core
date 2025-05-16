@@ -4,6 +4,7 @@ import {
   NetworkToken,
   TokenRequestParams,
   TokenResponseData,
+  addAddressPadding,
   sendRequest,
 } from '@starkey/utils'
 import { HexString, SupraClient } from 'supra-l1-sdk'
@@ -168,23 +169,28 @@ export const getSupraCustomTokensList = async (params: CustomTokenListRequestPar
     }
 
     const resources = response.Resources.resource
+
+    // Filter only CoinStore resources
     const coinStores = resources.filter(([, value]: [string, { name: string }]) => value.name === 'CoinStore')
+
+    // Helper to recursively format nested struct type
+    const formatStruct = (struct: any): string => {
+      const { address, module, name, type_args = [] } = struct
+      const formattedArgs =
+        type_args.length > 0 ? `<${type_args.map((arg: any) => formatStruct(arg.struct)).join(', ')}>` : ''
+      return `${addAddressPadding(address)}::${module}::${name}${formattedArgs}`
+    }
+
+    // Map CoinStore to type string
     const tokenAddresses = coinStores
-      .map(([key]: [string]) => {
-        const match = key.match(/<(.+)>/)
-        if (match) {
-          let address = match[1] as string
-          if (!address.startsWith('0x')) {
-            address = '0x' + address
-          }
-          return address
-        }
-        return null
+      .map(([_, value]: [string, any]) => {
+        const struct = value.type_args?.[0]?.struct
+        return struct ? formatStruct(struct) : null
       })
       .filter(Boolean)
       .filter(
         (address: string) =>
-          address !== '0x0000000000000000000000000000000000000000000000000000000000000001::supra_coin::SupraCoin' // Exclude main token address
+          address !== '0x0000000000000000000000000000000000000000000000000000000000000001::supra_coin::SupraCoin'
       )
 
     return tokenAddresses
