@@ -1,4 +1,12 @@
-import { NetworkRequestParams, NetworkToken, TokenRequestParams, TokenResponseData, sendRequest } from '@starkey/utils'
+import {
+  CustomTokenListRequestParams,
+  NetworkRequestParams,
+  NetworkToken,
+  TokenRequestParams,
+  TokenResponseData,
+  addAddressPadding,
+  sendRequest,
+} from '@starkey/utils'
 import { HexString, SupraClient } from 'supra-l1-sdk'
 
 /**
@@ -121,8 +129,17 @@ export const getAccountsResources = async (params: NetworkRequestParams) => {
   if (!params.userAddress) {
     return null
   }
+  const { paginationArgs } = params
+
   params.networkURL = params.networkURL.replace(/\/$/, '')
-  const response = await fetch(`${params.networkURL}/rpc/v1/accounts/${params.userAddress}/resources`)
+  let requestUrl = `${params.networkURL}/rpc/v1/accounts/${params.userAddress}/resources?count=${
+    paginationArgs?.count ?? 20
+  }`
+  if (paginationArgs?.start) {
+    requestUrl += `&start=${paginationArgs.start}`
+  }
+
+  const response = await fetch(requestUrl)
   if (!response.ok) {
     return null
   }
@@ -131,5 +148,53 @@ export const getAccountsResources = async (params: NetworkRequestParams) => {
     return await response.json()
   } catch {
     return null
+  }
+}
+
+export const getSupraCustomTokensList = async (params: CustomTokenListRequestParams): Promise<string[]> => {
+  try {
+    const { networkURL, userAddress } = params
+    // Fetch account resources from the provided RPC URL and wallet address
+    const response = await getAccountsResources({
+      networkURL: networkURL,
+      userAddress: userAddress,
+      paginationArgs: {
+        count: 100,
+        start: '',
+      },
+    })
+
+    if (!response?.Resources?.resource) {
+      return []
+    }
+
+    const resources = response.Resources.resource
+
+    // Filter only CoinStore resources
+    const coinStores = resources.filter(([, value]: [string, { name: string }]) => value.name === 'CoinStore')
+
+    // Helper to recursively format nested struct type
+    const formatStruct = (struct: any): string => {
+      const { address, module, name, type_args = [] } = struct
+      const formattedArgs =
+        type_args.length > 0 ? `<${type_args.map((arg: any) => formatStruct(arg.struct)).join(', ')}>` : ''
+      return `${addAddressPadding(address)}::${module}::${name}${formattedArgs}`
+    }
+
+    // Map CoinStore to type string
+    const tokenAddresses = coinStores
+      .map(([_, value]: [string, any]) => {
+        const struct = value.type_args?.[0]?.struct
+        return struct ? formatStruct(struct) : null
+      })
+      .filter(Boolean)
+      .filter(
+        (address: string) =>
+          address !== '0x0000000000000000000000000000000000000000000000000000000000000001::supra_coin::SupraCoin'
+      )
+
+    return tokenAddresses
+  } catch (error) {
+    return []
   }
 }
