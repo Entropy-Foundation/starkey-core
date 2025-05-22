@@ -178,7 +178,12 @@ export const getSupraCustomTokensList = async (params: CustomTokenListRequestPar
       const { address, module, name, type_args = [] } = struct
       const formattedArgs =
         type_args.length > 0 ? `<${type_args.map((arg: any) => formatStruct(arg.struct)).join(', ')}>` : ''
-      return `${addAddressPadding(address)}::${module}::${name}${formattedArgs}`
+
+      let formattedAddress = addAddressPadding(address)
+      if (formattedAddress === '0x0000000000000000000000000000000000000000000000000000000000000001') {
+        formattedAddress = '0x1'
+      }
+      return `${formattedAddress}::${module}::${name}${formattedArgs}`
     }
 
     // Map CoinStore to type string
@@ -188,10 +193,7 @@ export const getSupraCustomTokensList = async (params: CustomTokenListRequestPar
         return struct ? formatStruct(struct) : null
       })
       .filter(Boolean)
-      .filter(
-        (address: string) =>
-          address !== '0x0000000000000000000000000000000000000000000000000000000000000001::supra_coin::SupraCoin'
-      )
+      .filter((address: string) => address !== '0x1::supra_coin::SupraCoin')
 
     return tokenAddresses
   } catch (error) {
