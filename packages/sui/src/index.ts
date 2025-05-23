@@ -1,1 +1,1 @@
-export { getCustomToken, getSuiTransactionDetail, getSuiTransactions } from './sui'
+export { checkSuiTransactionStatus, getCustomToken, getSuiTransactionDetail, getSuiTransactions } from './sui'

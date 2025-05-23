@@ -1,6 +1,6 @@
 import { checkAptosTransactionStatus, getAptosTransactionDetail, getAptosTransactions } from '@starkey/aptos'
 import { checkEthTransactionStatus, getEthTransactionDetail, getEthTransactions } from '@starkey/eth'
-import { getSuiTransactionDetail, getSuiTransactions } from '@starkey/sui'
+import { checkSuiTransactionStatus, getSuiTransactionDetail, getSuiTransactions } from '@starkey/sui'
 import { checkTransactionStatus, getAccountCompleteTransactionsDetail, getTransactionDetail } from '@starkey/supra'
 import {
   CheckTransactionStatusReqParams,
@@ -57,6 +57,8 @@ export async function checkTransactionCompletionAndExpired(params: CheckTransact
     transactionStatusData = await checkEthTransactionStatus(params.rpcUrl, params.txHash, params.chainId)
   } else if (params.network === 'APT') {
     transactionStatusData = await checkAptosTransactionStatus(params.rpcUrl, params.txHash)
+  } else if (params.network === 'SUI') {
+    transactionStatusData = await checkSuiTransactionStatus(params.rpcUrl, params.txHash)
   }
   return transactionStatusData
 }

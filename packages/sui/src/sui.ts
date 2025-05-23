@@ -98,16 +98,16 @@ export const getSuiTransactions = async (asset: NetworkToken) => {
 
     const [fromBlocks, toBlocks] = await Promise.all([
       suiProvider.queryTransactionBlocks({
-        filter: { FromAddress: asset.address },
+        filter: { FromAddress: asset?.address },
         ...commonQueryOptions,
       }),
       suiProvider.queryTransactionBlocks({
-        filter: { ToAddress: asset.address },
+        filter: { ToAddress: asset?.address },
         ...commonQueryOptions,
       }),
     ])
 
-    const transactionList: any = [...fromBlocks.data, ...toBlocks.data]
+    const transactionList: any = [...fromBlocks?.data, ...toBlocks?.data]
     const seen = new Set()
 
     for (const obj of transactionList) {
@@ -117,22 +117,19 @@ export const getSuiTransactions = async (asset: NetworkToken) => {
       const { value, functionName, toAddress, transactionType } = buildTransactionData(obj, asset, false)
 
       if (value) {
-        transactions.push(formatedResponse(obj, toAddress, value, asset, transactionType, txnHash, functionName, false))
+        transactions.push(formatedResponse(obj, toAddress, value, asset, transactionType, functionName, false))
       }
 
       seen.add(txnHash)
     }
 
     transactions.sort((a, b) => Number(b.time) - Number(a.time))
-    console.log('transactions', transactions)
-    const filtered = asset.tokenContractAddress
+    const filtered = asset?.tokenContractAddress
       ? transactions.filter((tx) => tx.functionName === asset.tokenContractAddress)
       : transactions.filter((tx) => tx.functionName === '')
 
     return filtered
-  } catch (error: any) {
-    console.log('transaction ', error)
-  }
+  } catch (_) {}
 }
 
 /**
@@ -153,38 +150,9 @@ export const getSuiTransactionDetail = async (transactionHash: string, asset: Ne
     })
 
     const { toAddress, value, transactionType, functionName } = buildTransactionData(transactionBlock, asset, true)
-    const details = formatedResponse(
-      transactionBlock,
-      toAddress,
-      value,
-      asset,
-      transactionType,
-      transactionHash,
-      functionName,
-      false
-    )
-    console.log('details', details)
+    const details = formatedResponse(transactionBlock, toAddress, value, asset, transactionType, functionName, true)
     return details
-    // return {
-    //   blockNumber: transactionBlock.checkpoint,
-    //   time: transactionBlock?.timestampMs ? (Number(transactionBlock?.timestampMs ?? 0) / 1000).toString() : '',
-    //   hash: transactionHash,
-    //   nonce: '',
-    //   from: transactionBlock?.transaction?.data?.sender ?? '',
-    //   to: toAddress ?? '',
-    //   value: value,
-    //   gas: '',
-    //   gasPrice: transactionBlock?.transaction?.data?.gasData?.price ?? '0',
-    //   gasUsed: '',
-    //   cumulativeGasUsed: '',
-    //   tokenDecimal: asset.decimal,
-    //   networkFees: transactionBlock?.transaction?.data?.gasData?.price
-    //     ? ethers.formatUnits(transactionBlock?.transaction?.data?.gasData?.price, 9)
-    //     : '0',
-    //   title: asset.title,
-    //   transactionType,
-    // }
-  } catch (error: any) {}
+  } catch (_) {}
   return null
 }
 
@@ -194,14 +162,13 @@ function formatedResponse(
   value: string,
   asset: NetworkToken,
   transactionType: TRANSACTION_TYPE,
-  transactionHash: string,
   functionName: string,
   isDetail: boolean
 ) {
   let transaction: ReturnTransactionData = {
-    blockNumber: transactionDetail.checkpoint,
+    blockNumber: transactionDetail?.checkpoint,
     time: transactionDetail?.timestampMs ? (Number(transactionDetail?.timestampMs ?? 0) / 1000).toString() : '',
-    hash: transactionHash,
+    hash: transactionDetail?.digest,
     nonce: '',
     from: transactionDetail?.transaction?.data?.sender ?? '',
     to: toAddress ?? '',
@@ -229,38 +196,38 @@ function buildTransactionData(obj: any, asset: NetworkToken, isDetail: boolean) 
   let value = ''
   let transactionType = TRANSACTION_TYPE.SEND_RECEIVED
 
-  const inputs = obj.transaction?.data?.transaction?.inputs
+  const inputs = obj?.transaction?.data?.transaction?.inputs
   const inputAddress = inputs?.find((i: { valueType: string }) => i.valueType === 'address')?.value
   const inputAmount = inputs?.find((i: { valueType: string }) => i.valueType === 'u64')?.value
 
   toAddress = inputAddress || ''
 
   if (obj?.balanceChanges?.length) {
-    for (const balanceChange of obj.balanceChanges) {
+    for (const balanceChange of obj?.balanceChanges) {
       const amount = inputAmount
       value = amount ? ethers.formatUnits(amount, asset.decimal ?? 9) : '0'
-      if (isDetail || (!isDetail && !balanceChange.coinType?.includes('sui::SUI'))) {
+      if (isDetail || (!isDetail && !balanceChange?.coinType?.includes('sui::SUI'))) {
         functionName = balanceChange?.coinType ?? ''
       }
     }
 
-    const hasMoveCall = obj.transaction?.data?.transaction?.transactions?.some((tx: any) =>
+    const hasMoveCall = obj?.transaction?.data?.transaction?.transactions?.some((tx: any) =>
       tx.hasOwnProperty('MoveCall')
     )
 
     if (hasMoveCall) {
-      const coinType = asset.tokenContractAddress ?? NATIVE_COINS.SUI_COIN
-      const matched = obj.balanceChanges.find(
-        (b: any) => b?.owner?.AddressOwner === asset.address && b?.coinType === coinType
+      const coinType = asset?.tokenContractAddress ?? NATIVE_COINS.SUI_COIN
+      const matched = obj?.balanceChanges.find(
+        (b: any) => b?.owner?.AddressOwner === asset?.address && b?.coinType === coinType
       )
 
       if (matched) {
         value = ethers.formatUnits(matched.amount, asset.decimal ?? 9)
-        functionName = asset.tokenContractAddress ? coinType : ''
+        functionName = asset?.tokenContractAddress ? coinType : ''
         transactionType = TRANSACTION_TYPE.TRANSACTION
 
-        if (isDetail && Array.isArray(obj.transaction?.data?.transaction?.transactions)) {
-          const moveCallTx = obj.transaction.data.transaction.transactions.find((tx: any) => tx?.MoveCall)
+        if (isDetail && Array.isArray(obj?.transaction?.data?.transaction?.transactions)) {
+          const moveCallTx = obj?.transaction.data.transaction.transactions.find((tx: any) => tx?.MoveCall)
           if (moveCallTx?.MoveCall) {
             const { function: fn, module, package: pkg } = moveCallTx.MoveCall
             toAddress = `${pkg}::${module}::${fn}`
@@ -268,7 +235,7 @@ function buildTransactionData(obj: any, asset: NetworkToken, isDetail: boolean) 
         }
       }
     }
-  } else if (!asset.tokenContractAddress) {
+  } else if (!asset?.tokenContractAddress) {
     value = inputAmount ? ethers.formatUnits(inputAmount, asset.decimal ?? 9) : '0'
   }
 
@@ -277,5 +244,18 @@ function buildTransactionData(obj: any, asset: NetworkToken, isDetail: boolean) 
     functionName,
     transactionType,
     toAddress,
+  }
+}
+
+export const checkSuiTransactionStatus = async (rpcUrl: string, txHash: string) => {
+  const suiProvider = new SuiClient({ url: rpcUrl })
+  const tx: any = await suiProvider.waitForTransactionBlock({
+    digest: txHash,
+    options: {
+      showEffects: true,
+    },
+  })
+  if (tx?.effects?.status?.status !== 'success') {
+    throw new Error('Something went wrong')
   }
 }
