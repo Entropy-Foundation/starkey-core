@@ -10,6 +10,7 @@
   "dependencies": {
     "@starkey/supra": "link:./../supra",
     "@starkey/eth": "link:./../eth",
-    "@starkey/aptos": "link:./../aptos"
+    "@starkey/aptos": "link:./../aptos",
+    "@starkey/sui": "link:./../sui"
   }
 }
